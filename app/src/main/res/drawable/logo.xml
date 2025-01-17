@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Vòng tròn nền -->
+    <path
+        android:fillColor="#FFCDD2"
+        android:pathData="M50,0a50,50 0 1,1 0,100a50,50 0 1,1 0,-100" />
+
+    <!-- Hình chữ thập -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,25h20v15h15v20h-15v15h-20v-15h-15v-20h15z" />
+</vector>

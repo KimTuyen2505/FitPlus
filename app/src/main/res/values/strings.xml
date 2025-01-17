@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">FirstProject</string>
+    <!-- Tên ứng dụng -->
+    <string name="logo_description">Logo của ứng dụng</string>
+    <string name="app_name">FitPlus</string>
+    <string name="app_subtitle">Sổ sức khỏe điện tử</string>
+
+    <!-- Màn hình đăng nhập -->
+    <string name="login_title">Đăng nhập</string>
+    <string name="hint_phone">Số điện thoại</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="login_button">Đăng nhập</string>
+    <string name="register_prompt">Bạn chưa có tài khoản? Đăng ký ngay</string>
+    <string name="hotline_info">Hotline: 0983253551</string>
+
 </resources>
