@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Health Analysis and Alerts"
+            android:text="Phân tích và cảnh báo sức khỏe"
             android:textSize="24sp"
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Health Alerts"
+                    android:text="Cảnh báo sức khỏe"
                     android:textSize="18sp"
                     android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
@@ -42,7 +42,7 @@
                     android:id="@+id/text_health_alerts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No current health alerts."
+                    android:text="Không có cảnh báo sức khỏe hiện tại."
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>
@@ -63,7 +63,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Health Analysis"
+                    android:text="Phân tích sức khỏe"
                     android:textSize="18sp"
                     android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
@@ -72,7 +72,7 @@
                     android:id="@+id/text_health_analysis"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Your health analysis will appear here."
+                    android:text="Phân tích sức khỏe của bạn sẽ xuất hiện ở đây."
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>

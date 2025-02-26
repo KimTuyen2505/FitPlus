@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Personal Information"
+            android:text="Thông tin cá nhân"
             android:textSize="24sp"
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
@@ -28,7 +28,7 @@
                 android:id="@+id/edit_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Full Name" />
+                android:hint="Họ và tên" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -41,7 +41,7 @@
                 android:id="@+id/edit_age"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Age"
+                android:hint="Tuổi"
                 android:inputType="number" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -55,7 +55,7 @@
                 android:id="@+id/edit_gender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Gender" />
+                android:hint="Giới tính" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +68,7 @@
                 android:id="@+id/edit_height"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Height (cm)"
+                android:hint="Chiều cao (cm)"
                 android:inputType="numberDecimal" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -82,7 +82,7 @@
                 android:id="@+id/edit_weight"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Weight (kg)"
+                android:hint="Cân nặng (kg)"
                 android:inputType="numberDecimal" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -91,7 +91,7 @@
             android:id="@+id/btn_save_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save Information"
+            android:text="Lưu thông tin"
             android:backgroundTint="@color/accent_blue"
             android:textColor="@color/white" />
 

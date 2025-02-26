@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_medical_history"
+        android:title="Lịch sử y tế"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_health_suggestions"
+        android:title="Lời khuyên sức khỏe"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_analysis_alerts"
+        android:title="Phân tích &amp; Cảnh báo"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_menstrual_cycle"
+        android:title="Chu kỳ kinh nguyệt"
+        app:showAsAction="never" />
+</menu>
+

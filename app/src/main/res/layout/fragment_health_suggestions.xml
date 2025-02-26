@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Health Care Suggestions"
+            android:text="Lời khuyên chăm sóc sức khỏe"
             android:textSize="24sp"
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Exercise Recommendations"
+                    android:text="Khuyến nghị tập thể dục"
                     android:textSize="18sp"
                     android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
@@ -42,7 +42,7 @@
                     android:id="@+id/text_exercise_recommendations"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Your exercise recommendations will appear here."
+                    android:text="Khuyến nghị tập thể dục của bạn sẽ xuất hiện ở đây."
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>
@@ -63,7 +63,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nutrition Advice"
+                    android:text="Lời khuyên dinh dưỡng"
                     android:textSize="18sp"
                     android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
@@ -72,7 +72,7 @@
                     android:id="@+id/text_nutrition_advice"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Your nutrition advice will appear here."
+                    android:text="Lời khuyên dinh dưỡng của bạn sẽ xuất hiện ở đây."
                     android:textColor="@color/text_secondary" />
 
             </LinearLayout>
@@ -82,4 +82,3 @@
     </LinearLayout>
 
 </ScrollView>
-

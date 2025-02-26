@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Health Tracking"
+            android:text="Theo dõi sức khỏe"
             android:textSize="24sp"
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Weight Tracking"
+            android:text="Theo dõi cân nặng"
             android:textSize="18sp"
             android:textColor="@color/text_primary"
             android:layout_marginBottom="8dp" />
@@ -42,7 +42,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Height Tracking"
+            android:text="Theo dõi chiều cao"
             android:textSize="18sp"
             android:textColor="@color/text_primary"
             android:layout_marginBottom="8dp" />
@@ -51,7 +51,7 @@
             android:id="@+id/btn_add_measurement"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add New Measurement"
+            android:text="Thêm chỉ số mới"
             android:backgroundTint="@color/accent_blue"
             android:textColor="@color/white" />
 

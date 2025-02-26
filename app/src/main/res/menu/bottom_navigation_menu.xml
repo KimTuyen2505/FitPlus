@@ -3,18 +3,22 @@
     <item
         android:id="@+id/nav_dashboard"
         android:icon="@drawable/ic_dashboard"
-        android:title="Dashboard" />
+        android:title="Tổng quan" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/profile"
-        android:title="Profile" />
+        android:title="Hồ sơ" />
     <item
         android:id="@+id/nav_health"
         android:icon="@drawable/ic_health"
-        android:title="Health" />
+        android:title="Sức khỏe" />
     <item
         android:id="@+id/nav_reminders"
         android:icon="@drawable/ic_reminders"
-        android:title="Reminders" />
+        android:title="Nhắc nhở" />
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@drawable/ic_dashboard"
+        android:title="Thêm" />
 </menu>
 

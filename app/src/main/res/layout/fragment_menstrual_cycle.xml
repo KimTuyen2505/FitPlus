@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Menstrual Cycle Management"
+            android:text="Quản lý chu kỳ kinh nguyệt"
             android:textSize="24sp"
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
@@ -29,7 +29,7 @@
             android:id="@+id/btn_log_period"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Log Period"
+            android:text="Ghi nhận chu kỳ"
             android:backgroundTint="@color/accent_blue"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
@@ -38,7 +38,7 @@
             android:id="@+id/text_cycle_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Your cycle information will appear here."
+            android:text="Thông tin chu kỳ của bạn sẽ xuất hiện ở đây."
             android:textColor="@color/text_secondary"
             android:layout_marginBottom="16dp" />
 
@@ -46,7 +46,7 @@
             android:id="@+id/text_cycle_alerts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Any cycle alerts or notifications will appear here."
+            android:text="Bất kỳ cảnh báo hoặc thông báo chu kỳ nào sẽ xuất hiện ở đây."
             android:textColor="@color/text_secondary" />
 
     </LinearLayout>

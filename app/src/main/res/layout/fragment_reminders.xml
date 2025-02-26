@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Smart Reminders"
+            android:text="Nhắc nhở thông minh"
             android:textSize="24sp"
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
@@ -36,7 +36,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/accent_blue"
-        android:contentDescription="Add Reminder" />
+        android:contentDescription="Thêm nhắc nhở" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
