@@ -18,7 +18,7 @@
         android:title="Nhắc nhở" />
     <item
         android:id="@+id/nav_more"
-        android:icon="@drawable/ic_dashboard"
+        android:icon="@drawable/ic_more"
         android:title="Thêm" />
 </menu>
 
