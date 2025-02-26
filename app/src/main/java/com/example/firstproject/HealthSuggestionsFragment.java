@@ -64,3 +64,4 @@ public class HealthSuggestionsFragment extends Fragment {
         listener = null;
     }
 }
+

@@ -12,18 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.firstproject.database.HealthMeasurementDAO;
-import com.example.firstproject.database.UserDAO;
-import com.example.firstproject.models.HealthMeasurement;
-import com.example.firstproject.models.User;
-
 public class DashboardFragment extends Fragment {
 
     private DashboardListener listener;
     private TextView textWeight, textHeight, textBMI, textHealthTip;
     private Button btnAddMeasurement, btnViewReminders;
-    private UserDAO userDAO;
-    private HealthMeasurementDAO healthMeasurementDAO;
 
     public interface DashboardListener {
         void onAddMeasurementClicked();
@@ -44,12 +37,6 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
-
-        // Khởi tạo DAO
-        userDAO = new UserDAO(getContext());
-        userDAO.open();
-        healthMeasurementDAO = new HealthMeasurementDAO(getContext());
-        healthMeasurementDAO.open();
 
         // Initialize views
         textWeight = view.findViewById(R.id.text_weight);
@@ -78,97 +65,19 @@ public class DashboardFragment extends Fragment {
             }
         });
 
-        // Load data from database
+        // Load data (in a real app, this would come from a database or shared preferences)
         loadHealthData();
 
         return view;
     }
 
     private void loadHealthData() {
-        // Lấy thông tin người dùng từ cơ sở dữ liệu
-        User user = userDAO.getUser();
-
-        // Lấy chỉ số sức khỏe mới nhất từ cơ sở dữ liệu
-        HealthMeasurement latestWeight = healthMeasurementDAO.getLatestMeasurementByType("weight");
-        HealthMeasurement latestHeight = healthMeasurementDAO.getLatestMeasurementByType("height");
-
-        // Hiển thị thông tin
-        if (latestWeight != null) {
-            textWeight.setText("Cân nặng: " + latestWeight.getValue() + " kg");
-        } else if (user != null) {
-            textWeight.setText("Cân nặng: " + user.getWeight() + " kg");
-        } else {
-            textWeight.setText("Cân nặng: Chưa có dữ liệu");
-        }
-
-        if (latestHeight != null) {
-            textHeight.setText("Chiều cao: " + latestHeight.getValue() + " cm");
-        } else if (user != null) {
-            textHeight.setText("Chiều cao: " + user.getHeight() + " cm");
-        } else {
-            textHeight.setText("Chiều cao: Chưa có dữ liệu");
-        }
-
-        // Tính BMI
-        float bmi = 0;
-        String bmiCategory = "Chưa có dữ liệu";
-
-        if (user != null) {
-            bmi = user.calculateBMI();
-            bmiCategory = user.getBMICategory();
-        } else if (latestWeight != null && latestHeight != null) {
-            float weight = latestWeight.getValue();
-            float height = latestHeight.getValue() / 100; // Chuyển từ cm sang m
-            bmi = weight / (height * height);
-
-            if (bmi < 18.5) {
-                bmiCategory = "Thiếu cân";
-            } else if (bmi < 25) {
-                bmiCategory = "Bình thường";
-            } else if (bmi < 30) {
-                bmiCategory = "Thừa cân";
-            } else {
-                bmiCategory = "Béo phì";
-            }
-        }
-
-        if (bmi > 0) {
-            textBMI.setText(String.format("BMI: %.1f (%s)", bmi, bmiCategory));
-        } else {
-            textBMI.setText("BMI: Chưa có dữ liệu");
-        }
-
-        // Hiển thị lời khuyên sức khỏe
-        String[] healthTips = {
-                "Hãy nhớ uống đủ nước! Mục tiêu 8 ly nước mỗi ngày.",
-                "Tập thể dục ít nhất 30 phút mỗi ngày để duy trì sức khỏe tốt.",
-                "Ăn nhiều rau xanh và trái cây để cung cấp đủ vitamin và khoáng chất.",
-                "Ngủ đủ 7-8 tiếng mỗi đêm để cơ thể được nghỉ ngơi và phục hồi.",
-                "Hạn chế thức ăn nhanh và đồ uống có đường để giảm nguy cơ béo phì."
-        };
-
-        // Chọn ngẫu nhiên một lời khuyên
-        int randomIndex = (int) (Math.random() * healthTips.length);
-        textHealthTip.setText(healthTips[randomIndex]);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Tải lại dữ liệu khi quay lại fragment
-        loadHealthData();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // Đóng kết nối cơ sở dữ liệu
-        if (userDAO != null) {
-            userDAO.close();
-        }
-        if (healthMeasurementDAO != null) {
-            healthMeasurementDAO.close();
-        }
+        // Trong ứng dụng thực tế, dữ liệu này sẽ được tải từ cơ sở dữ liệu hoặc shared preferences
+        // Hiện tại, chúng ta chỉ sử dụng dữ liệu mẫu
+        textWeight.setText("Cân nặng: 70 kg");
+        textHeight.setText("Chiều cao: 175 cm");
+        textBMI.setText("BMI: 22.9 (Bình thường)");
+        textHealthTip.setText("Hãy nhớ uống đủ nước! Mục tiêu 8 ly nước mỗi ngày.");
     }
 
     @Override
