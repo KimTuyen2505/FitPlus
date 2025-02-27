@@ -62,8 +62,6 @@ public class PersonalInfoFragment extends Fragment {
     }
 
     private void loadPersonalInfo() {
-        // Trong ứng dụng thực tế, dữ liệu này sẽ được tải từ cơ sở dữ liệu hoặc shared preferences
-        // Hiện tại, chúng ta chỉ sử dụng dữ liệu mẫu
         editName.setText("Nguyễn Văn A");
         editAge.setText("30");
         editGender.setText("Nam");

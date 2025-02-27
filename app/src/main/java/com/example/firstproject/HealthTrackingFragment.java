@@ -59,9 +59,6 @@ public class HealthTrackingFragment extends Fragment {
     }
 
     private void loadChartData() {
-        // In a real app, this would load data from a database
-        // For now, we'll just use placeholder for charts
-        // Note: In a real implementation, you would use a charting library like MPAndroidChart
         View weightChartPlaceholder = new View(getContext());
         weightChartPlaceholder.setBackgroundColor(getResources().getColor(R.color.accent_blue));
         chartWeightContainer.addView(weightChartPlaceholder);

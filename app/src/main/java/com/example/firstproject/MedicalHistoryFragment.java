@@ -58,7 +58,7 @@ public class MedicalHistoryFragment extends Fragment {
         // Add some dummy medical records
         medicalRecordList.add(new MedicalRecord("Khám sức khỏe định kỳ", "15/01/2023", "Bác sĩ Nguyễn", "Khám sức khỏe tổng quát. Tất cả các chỉ số đều bình thường."));
         medicalRecordList.add(new MedicalRecord("Tiêm vắc-xin cúm", "05/10/2022", "Bác sĩ Trần", "Tiêm vắc-xin cúm theo mùa."));
-        medicalRecordList.add(new MedicalRecord("Khám răng", "20/08/2022", "Bác sĩ Lê", "Khám và vệ sinh răng định kỳ. Không phát hiện sâu răng."));
+        medicalRecordList.add(new MedicalRecord("Khám răng", "20/08/2022", "Bác sĩ Yên", "Khám và vệ sinh răng định kỳ. Không phát hiện sâu răng."));
 
         // Set adapter
         MedicalRecordAdapter adapter = new MedicalRecordAdapter(medicalRecordList);
