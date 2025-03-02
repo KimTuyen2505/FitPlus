@@ -13,7 +13,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
 
-        // Set user name
         TextView userName = findViewById(R.id.userName);
         userName.setText("Nguyễn Đặng Kim Tuyến");
     }

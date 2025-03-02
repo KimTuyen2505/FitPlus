@@ -34,12 +34,10 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set up toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Quản lý sức khỏe");
 
-        // Set up bottom navigation
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -75,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        // Set default fragment
         if (savedInstanceState == null) {
             getSupportActionBar().setTitle("Tổng quan");
             loadFragment(new DashboardFragment());
@@ -84,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void showMoreOptions() {
-        // Hiển thị menu popup với các tùy chọn khác
         PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.nav_more));
         popupMenu.getMenuInflater().inflate(R.menu.more_menu, popupMenu.getMenu());
 
@@ -121,11 +117,8 @@ public class MainActivity extends AppCompatActivity implements
         popupMenu.show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
+
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -158,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements
         transaction.commit();
     }
 
-    // DashboardFragment.DashboardListener methods
     @Override
     public void onAddMeasurementClicked() {
         bottomNavigationView.setSelectedItemId(R.id.nav_health);
@@ -171,43 +163,36 @@ public class MainActivity extends AppCompatActivity implements
         Toast.makeText(this, "Đang chuyển đến Nhắc nhở", Toast.LENGTH_SHORT).show();
     }
 
-    // PersonalInfoFragment.PersonalInfoListener methods
     @Override
     public void onPersonalInfoSaved() {
         Toast.makeText(this, "Thông tin cá nhân đã được lưu thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // HealthTrackingFragment.HealthTrackingListener methods
     @Override
     public void onMeasurementAdded() {
         Toast.makeText(this, "Đã thêm chỉ số mới thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // RemindersFragment.RemindersListener methods
     @Override
     public void onReminderAdded() {
         Toast.makeText(this, "Đã thêm nhắc nhở mới thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // MedicalHistoryFragment.MedicalHistoryListener methods
     @Override
     public void onMedicalRecordAdded() {
         Toast.makeText(this, "Đã thêm hồ sơ y tế thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // HealthSuggestionsFragment.HealthSuggestionsListener methods
     @Override
     public void onSuggestionSelected(String suggestionId) {
         Toast.makeText(this, "Đã chọn lời khuyên: " + suggestionId, Toast.LENGTH_SHORT).show();
     }
 
-    // AnalysisAlertsFragment.AnalysisAlertsListener methods
     @Override
     public void onAlertDismissed(String alertId) {
         Toast.makeText(this, "Đã bỏ qua cảnh báo: " + alertId, Toast.LENGTH_SHORT).show();
     }
 
-    // MenstrualCycleFragment.MenstrualCycleListener methods
     @Override
     public void onPeriodLogged(Date date) {
         Toast.makeText(this, "Đã ghi nhận chu kỳ thành công", Toast.LENGTH_SHORT).show();
