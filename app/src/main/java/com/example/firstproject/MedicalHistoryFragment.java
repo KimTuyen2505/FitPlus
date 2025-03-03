@@ -9,12 +9,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.firstproject.R;
+import com.example.firstproject.dao.MedicalRecordDAO;
+import com.example.firstproject.models.MedicalRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,8 @@ public class MedicalHistoryFragment extends Fragment {
     private RecyclerView recyclerMedicalHistory;
     private Button btnAddMedicalRecord;
     private List<MedicalRecord> medicalRecordList;
+    private MedicalRecordAdapter adapter;
+    private MedicalRecordDAO medicalRecordDAO;
 
     public interface MedicalHistoryListener {
         void onMedicalRecordAdded();
@@ -38,6 +45,20 @@ public class MedicalHistoryFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString() + " must implement MedicalHistoryListener");
         }
+        medicalRecordDAO = new MedicalRecordDAO(context);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        medicalRecordDAO.open();
+        loadMedicalRecords();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        medicalRecordDAO.close();
     }
 
     @Nullable
@@ -45,34 +66,24 @@ public class MedicalHistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_medical_history, container, false);
 
-        // Initialize views
         recyclerMedicalHistory = view.findViewById(R.id.recycler_medical_history);
         btnAddMedicalRecord = view.findViewById(R.id.btn_add_medical_record);
 
-        // Set up RecyclerView
         recyclerMedicalHistory.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize medical record list
         medicalRecordList = new ArrayList<>();
-
-        // Add some dummy medical records
-        medicalRecordList.add(new MedicalRecord("Khám sức khỏe định kỳ", "15/01/2023", "Bác sĩ Nguyễn", "Khám sức khỏe tổng quát. Tất cả các chỉ số đều bình thường."));
-        medicalRecordList.add(new MedicalRecord("Tiêm vắc-xin cúm", "05/10/2022", "Bác sĩ Trần", "Tiêm vắc-xin cúm theo mùa."));
-        medicalRecordList.add(new MedicalRecord("Khám răng", "20/08/2022", "Bác sĩ Yên", "Khám và vệ sinh răng định kỳ. Không phát hiện sâu răng."));
-
-        // Set adapter
-        MedicalRecordAdapter adapter = new MedicalRecordAdapter(medicalRecordList);
+        adapter = new MedicalRecordAdapter(medicalRecordList);
         recyclerMedicalHistory.setAdapter(adapter);
 
-        // Set click listener for add medical record button
-        btnAddMedicalRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddMedicalRecordDialog();
-            }
-        });
+        btnAddMedicalRecord.setOnClickListener(v -> showAddMedicalRecordDialog());
 
         return view;
+    }
+
+    private void loadMedicalRecords() {
+        medicalRecordList.clear();
+        medicalRecordList.addAll(medicalRecordDAO.getAllRecords());
+        adapter.notifyDataSetChanged();
     }
 
     private void showAddMedicalRecordDialog() {
@@ -90,37 +101,34 @@ public class MedicalHistoryFragment extends Fragment {
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = editTitle.getText().toString();
-                String date = editDate.getText().toString();
-                String doctor = editDoctor.getText().toString();
-                String notes = editNotes.getText().toString();
+        btnSave.setOnClickListener(v -> {
+            String title = editTitle.getText().toString();
+            String date = editDate.getText().toString();
+            String doctor = editDoctor.getText().toString();
+            String notes = editNotes.getText().toString();
 
-                if (!title.isEmpty() && !date.isEmpty()) {
-                    // Add new medical record to the list
-                    medicalRecordList.add(new MedicalRecord(title, date, doctor, notes));
+            if (!title.isEmpty() && !date.isEmpty()) {
+                MedicalRecord record = new MedicalRecord(title, date, doctor, notes);
+                long id = medicalRecordDAO.insertRecord(record);
+                record.setId(id);
 
-                    // Update the adapter
-                    recyclerMedicalHistory.getAdapter().notifyItemInserted(medicalRecordList.size() - 1);
+                medicalRecordList.add(0, record);
+                adapter.notifyItemInserted(0);
+                recyclerMedicalHistory.scrollToPosition(0);
 
-                    // Notify the listener
-                    if (listener != null) {
-                        listener.onMedicalRecordAdded();
-                    }
+                if (listener != null) {
+                    listener.onMedicalRecordAdded();
                 }
-
-                dialog.dismiss();
+            } else {
+                Toast.makeText(getContext(),
+                        "Vui lòng nhập tiêu đề và ngày",
+                        Toast.LENGTH_SHORT).show();
             }
+
+            dialog.dismiss();
         });
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
     }
 
     @Override
@@ -129,62 +137,36 @@ public class MedicalHistoryFragment extends Fragment {
         listener = null;
     }
 
-    // Medical record model class
-    public static class MedicalRecord {
-        private String title;
-        private String date;
-        private String doctor;
-        private String notes;
+    private class MedicalRecordAdapter extends RecyclerView.Adapter<MedicalRecordAdapter.MedicalRecordViewHolder> {
 
-        public MedicalRecord(String title, String date, String doctor, String notes) {
-            this.title = title;
-            this.date = date;
-            this.doctor = doctor;
-            this.notes = notes;
-        }
+        private List<MedicalRecord> records;
 
-        public String getTitle() {
-            return title;
-        }
-
-        public String getDate() {
-            return date;
-        }
-
-        public String getDoctor() {
-            return doctor;
-        }
-
-        public String getNotes() {
-            return notes;
-        }
-    }
-
-    // Medical record adapter class
-    public class MedicalRecordAdapter extends RecyclerView.Adapter<MedicalRecordAdapter.MedicalRecordViewHolder> {
-
-        private List<MedicalRecord> medicalRecords;
-
-        public MedicalRecordAdapter(List<MedicalRecord> medicalRecords) {
-            this.medicalRecords = medicalRecords;
+        public MedicalRecordAdapter(List<MedicalRecord> records) {
+            this.records = records;
         }
 
         @NonNull
         @Override
         public MedicalRecordViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_medical_record, parent, false);
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_medical_record, parent, false);
             return new MedicalRecordViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull MedicalRecordViewHolder holder, int position) {
-            MedicalRecord medicalRecord = medicalRecords.get(position);
-            holder.bind(medicalRecord);
+            MedicalRecord record = records.get(position);
+            holder.bind(record);
+
+            holder.itemView.setOnLongClickListener(v -> {
+                showDeleteDialog(record);
+                return true;
+            });
         }
 
         @Override
         public int getItemCount() {
-            return medicalRecords.size();
+            return records.size();
         }
 
         class MedicalRecordViewHolder extends RecyclerView.ViewHolder {
@@ -199,12 +181,27 @@ public class MedicalHistoryFragment extends Fragment {
                 textNotes = itemView.findViewById(R.id.text_notes);
             }
 
-            public void bind(MedicalRecord medicalRecord) {
-                textTitle.setText(medicalRecord.getTitle());
-                textDate.setText(medicalRecord.getDate());
-                textDoctor.setText(medicalRecord.getDoctor());
-                textNotes.setText(medicalRecord.getNotes());
+            public void bind(MedicalRecord record) {
+                textTitle.setText(record.getTitle());
+                textDate.setText(record.getDate());
+                textDoctor.setText(record.getDoctor());
+                textNotes.setText(record.getNotes());
             }
         }
     }
+
+    private void showDeleteDialog(MedicalRecord record) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Xóa hồ sơ y tế")
+                .setMessage("Bạn có chắc muốn xóa hồ sơ này?")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    medicalRecordDAO.deleteRecord(record.getId());
+                    medicalRecordList.remove(record);
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Đã xóa hồ sơ", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
 }
+

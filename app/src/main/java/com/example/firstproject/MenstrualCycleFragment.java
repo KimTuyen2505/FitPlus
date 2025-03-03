@@ -10,10 +10,15 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.firstproject.R;
+import com.example.firstproject.dao.MenstrualCycleDAO;
+import com.example.firstproject.models.MenstrualCycle;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -26,8 +31,9 @@ public class MenstrualCycleFragment extends Fragment {
     private CalendarView calendarMenstrualCycle;
     private Button btnLogPeriod;
     private TextView textCycleInfo, textCycleAlerts;
-    private Date lastPeriodStartDate;
-    private int averageCycleLength = 28; // Default cycle length
+    private MenstrualCycleDAO menstrualCycleDAO;
+    private SimpleDateFormat dateFormat;
+    private MenstrualCycle currentCycle;
 
     public interface MenstrualCycleListener {
         void onPeriodLogged(Date date);
@@ -41,6 +47,21 @@ public class MenstrualCycleFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString() + " must implement MenstrualCycleListener");
         }
+        menstrualCycleDAO = new MenstrualCycleDAO(context);
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        menstrualCycleDAO.open();
+        loadCycleData();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        menstrualCycleDAO.close();
     }
 
     @Nullable
@@ -48,77 +69,77 @@ public class MenstrualCycleFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_menstrual_cycle, container, false);
 
-        // Initialize views
         calendarMenstrualCycle = view.findViewById(R.id.calendar_menstrual_cycle);
         btnLogPeriod = view.findViewById(R.id.btn_log_period);
         textCycleInfo = view.findViewById(R.id.text_cycle_info);
         textCycleAlerts = view.findViewById(R.id.text_cycle_alerts);
 
-        // Set up calendar
-        calendarMenstrualCycle.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                Calendar selectedDate = Calendar.getInstance();
-                selectedDate.set(year, month, dayOfMonth);
-                // Handle date selection
-            }
+        calendarMenstrualCycle.setOnDateChangeListener((view1, year, month, dayOfMonth) -> {
+            Calendar selectedDate = Calendar.getInstance();
+            selectedDate.set(year, month, dayOfMonth);
+            // Handle date selection
         });
 
-        // Set click listener for log period button
-        btnLogPeriod.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showLogPeriodDialog();
-            }
-        });
-
-        // Load cycle data
-        loadCycleData();
+        btnLogPeriod.setOnClickListener(v -> showLogPeriodDialog());
 
         return view;
     }
 
     private void loadCycleData() {
-        // In a real app, this would load data from a database
-        // For now, we'll just use dummy data
-        lastPeriodStartDate = new Date(System.currentTimeMillis());
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
-        String lastPeriodDate = dateFormat.format(lastPeriodStartDate);
-
-        // Tính toán chu kỳ tiếp theo
-        Calendar nextPeriodCal = Calendar.getInstance();
-        nextPeriodCal.setTime(lastPeriodStartDate);
-        nextPeriodCal.add(Calendar.DAY_OF_MONTH, averageCycleLength);
-        String nextPeriodDate = dateFormat.format(nextPeriodCal.getTime());
-
-        // Tính toán cửa sổ sinh sản
-        Calendar fertileStartCal = Calendar.getInstance();
-        fertileStartCal.setTime(lastPeriodStartDate);
-        fertileStartCal.add(Calendar.DAY_OF_MONTH, averageCycleLength - 19);
-
-        Calendar fertileEndCal = Calendar.getInstance();
-        fertileEndCal.setTime(lastPeriodStartDate);
-        fertileEndCal.add(Calendar.DAY_OF_MONTH, averageCycleLength - 11);
-
-        String fertileWindowStart = dateFormat.format(fertileStartCal.getTime());
-        String fertileWindowEnd = dateFormat.format(fertileEndCal.getTime());
-
-        textCycleInfo.setText("Chu kỳ gần nhất: " + lastPeriodDate + "\n" +
-                "Chu kỳ tiếp theo: " + nextPeriodDate + "\n" +
-                "Cửa sổ sinh sản: " + fertileWindowStart + " đến " + fertileWindowEnd + "\n" +
-                "Độ dài chu kỳ trung bình: " + averageCycleLength + " ngày");
-
-        // Đặt cảnh báo dựa trên chu kỳ
-        Calendar today = Calendar.getInstance();
-        long daysDiff = (today.getTimeInMillis() - lastPeriodStartDate.getTime()) / (24 * 60 * 60 * 1000);
-
-        if (daysDiff >= averageCycleLength - 3 && daysDiff <= averageCycleLength) {
-            textCycleAlerts.setText("Chu kỳ của bạn dự kiến sẽ bắt đầu sớm. Hãy chuẩn bị!");
-        } else if (daysDiff >= averageCycleLength - 14 && daysDiff <= averageCycleLength - 11) {
-            textCycleAlerts.setText("Bạn đang trong cửa sổ sinh sản.");
+        currentCycle = menstrualCycleDAO.getLatestCycle();
+        if (currentCycle != null) {
+            updateCycleInfo();
         } else {
-            textCycleAlerts.setText("Không có cảnh báo vào lúc này.");
+            textCycleInfo.setText("Chưa có dữ liệu chu kỳ");
+            textCycleAlerts.setText("Hãy ghi lại chu kỳ đầu tiên của bạn");
+        }
+    }
+
+    private void updateCycleInfo() {
+        if (currentCycle == null) return;
+
+        String startDate = dateFormat.format(currentCycle.getStartDate());
+        String endDate = currentCycle.getEndDate() != null ?
+                dateFormat.format(currentCycle.getEndDate()) : "Đang diễn ra";
+
+        int cycleLength = currentCycle.getCycleLength();
+
+        StringBuilder info = new StringBuilder();
+        info.append("Chu kỳ gần nhất:\n");
+        info.append("Bắt đầu: ").append(startDate).append("\n");
+        info.append("Kết thúc: ").append(endDate).append("\n");
+        if (cycleLength > 0) {
+            info.append("Độ dài chu kỳ: ").append(cycleLength).append(" ngày\n");
+        }
+        if (currentCycle.getSymptoms() != null && !currentCycle.getSymptoms().isEmpty()) {
+            info.append("Triệu chứng: ").append(currentCycle.getSymptoms());
+        }
+
+        textCycleInfo.setText(info.toString());
+
+        // Calculate and show alerts
+        updateCycleAlerts();
+    }
+
+    private void updateCycleAlerts() {
+        if (currentCycle == null || currentCycle.getStartDate() == null) return;
+
+        Calendar today = Calendar.getInstance();
+        Calendar nextPeriod = Calendar.getInstance();
+        nextPeriod.setTime(currentCycle.getStartDate());
+        nextPeriod.add(Calendar.DAY_OF_MONTH, 28); // Assuming 28-day cycle
+
+        long daysDiff = (nextPeriod.getTimeInMillis() - today.getTimeInMillis()) /
+                (24 * 60 * 60 * 1000);
+
+        if (daysDiff <= 3 && daysDiff >= 0) {
+            textCycleAlerts.setText("Chu kỳ tiếp theo dự kiến sẽ bắt đầu trong " +
+                    daysDiff + " ngày nữa");
+        } else if (daysDiff < 0) {
+            textCycleAlerts.setText("Chu kỳ tiếp theo đã quá hạn " +
+                    Math.abs(daysDiff) + " ngày");
+        } else {
+            textCycleAlerts.setText("Chu kỳ tiếp theo dự kiến sau " + daysDiff + " ngày");
         }
     }
 
@@ -128,6 +149,7 @@ public class MenstrualCycleFragment extends Fragment {
         builder.setView(dialogView);
 
         final CalendarView calendarView = dialogView.findViewById(R.id.calendar_select_date);
+        final EditText editSymptoms = dialogView.findViewById(R.id.edit_symptoms);
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
@@ -135,36 +157,37 @@ public class MenstrualCycleFragment extends Fragment {
         dialog.show();
 
         final Date[] selectedDate = {new Date()};
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(year, month, dayOfMonth);
-                selectedDate[0] = calendar.getTime();
-            }
+        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month, dayOfMonth);
+            selectedDate[0] = calendar.getTime();
         });
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                lastPeriodStartDate = selectedDate[0];
-                loadCycleData();
+        btnSave.setOnClickListener(v -> {
+            String symptoms = editSymptoms.getText().toString();
 
-                // Notify the listener
-                if (listener != null) {
-                    listener.onPeriodLogged(lastPeriodStartDate);
-                }
-
-                dialog.dismiss();
+            // If there's an ongoing cycle, end it
+            if (currentCycle != null && currentCycle.getEndDate() == null) {
+                currentCycle.setEndDate(new Date());
+                menstrualCycleDAO.updateCycle(currentCycle);
             }
+
+            // Start new cycle
+            MenstrualCycle newCycle = new MenstrualCycle(selectedDate[0], null, symptoms);
+            long id = menstrualCycleDAO.insertCycle(newCycle);
+            newCycle.setId(id);
+            currentCycle = newCycle;
+
+            loadCycleData();
+
+            if (listener != null) {
+                listener.onPeriodLogged(selectedDate[0]);
+            }
+
+            dialog.dismiss();
         });
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
     }
 
     @Override

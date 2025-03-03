@@ -1,13 +1,17 @@
 package com.example.firstproject;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,7 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class RemindersFragment extends Fragment {
 
@@ -83,10 +89,61 @@ public class RemindersFragment extends Fragment {
         builder.setView(dialogView);
 
         final EditText editTitle = dialogView.findViewById(R.id.edit_title);
-        final EditText editTime = dialogView.findViewById(R.id.edit_time);
-        final EditText editFrequency = dialogView.findViewById(R.id.edit_frequency);
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
+        TextView textTime = dialogView.findViewById(R.id.text_time);
+        final String[] formattedTime = {""};
+        textTime.setOnClickListener(view -> {
+            // Lấy giờ và phút hiện tại
+            Calendar calendar = Calendar.getInstance();
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+            formattedTime[0] = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
+
+            // Tạo TimePickerDialog
+            TimePickerDialog timePickerDialog = new TimePickerDialog(
+                    getContext(),
+                    (view1, selectedHour, selectedMinute) -> {
+                        // Định dạng thành HH:mm
+                        formattedTime[0] = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+                        textTime.setText(formattedTime[0]);
+                    },
+                    hour, minute, true // true = 24h format
+            );
+            timePickerDialog.show();
+        });
+
+        Spinner spinnerFrequency = dialogView.findViewById(R.id.spinner_frequency);
+        final String[] selectedFrequency = {""};
+        spinnerFrequency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                long repeatInterval;
+                switch (position) {
+                    case 0:
+                        selectedFrequency[0] = "Hàng tuần";
+                        break;
+                    case 2:
+                        selectedFrequency[0] = "Mỗi 2 giờ";
+                        break;
+                    case 3:
+                        selectedFrequency[0] = "Mỗi giờ";
+                        break;
+                    case 4:
+                        selectedFrequency[0] = "Mỗi phút";
+                        break;
+                    default:
+                        selectedFrequency[0] = "Mỗi ngày";
+                        break;
+                }
+                // Bạn có thể lưu repeatInterval vào biến toàn cục hoặc SharedPreferences để dùng khi lưu nhắc nhở
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         final AlertDialog dialog = builder.create();
         dialog.show();
@@ -95,8 +152,8 @@ public class RemindersFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String title = editTitle.getText().toString();
-                String time = editTime.getText().toString();
-                String frequency = editFrequency.getText().toString();
+                String time = formattedTime[0];
+                String frequency = selectedFrequency[0];
 
                 if (!title.isEmpty() && !time.isEmpty() && !frequency.isEmpty()) {
                     // Add new reminder to the list

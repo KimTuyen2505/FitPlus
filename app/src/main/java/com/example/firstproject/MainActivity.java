@@ -1,5 +1,12 @@
 package com.example.firstproject;
 
+import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,11 +15,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.firstproject.services.NotificationReceiver;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Calendar;
 import java.util.Date;
 import android.widget.PopupMenu;
 
@@ -34,12 +45,22 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set up toolbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+            }
+        }
+
+        Date date = new Date();
+        scheduleNotification(this, date.getHours(), date.getMinutes() + 1,
+                AlarmManager.INTERVAL_HOUR / 60,
+                "Nhắc nhở",
+                "Đã đến giờ uống nước, hãy uống 330ml để thanh lọc cơ thể");
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Quản lý sức khỏe");
 
-        // Set up bottom navigation
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -75,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        // Set default fragment
         if (savedInstanceState == null) {
             getSupportActionBar().setTitle("Tổng quan");
             loadFragment(new DashboardFragment());
@@ -84,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void showMoreOptions() {
-        // Hiển thị menu popup với các tùy chọn khác
         PopupMenu popupMenu = new PopupMenu(this, findViewById(R.id.nav_more));
         popupMenu.getMenuInflater().inflate(R.menu.more_menu, popupMenu.getMenu());
 
@@ -122,12 +141,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
@@ -158,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements
         transaction.commit();
     }
 
-    // DashboardFragment.DashboardListener methods
     @Override
     public void onAddMeasurementClicked() {
         bottomNavigationView.setSelectedItemId(R.id.nav_health);
@@ -171,46 +183,74 @@ public class MainActivity extends AppCompatActivity implements
         Toast.makeText(this, "Đang chuyển đến Nhắc nhở", Toast.LENGTH_SHORT).show();
     }
 
-    // PersonalInfoFragment.PersonalInfoListener methods
     @Override
     public void onPersonalInfoSaved() {
         Toast.makeText(this, "Thông tin cá nhân đã được lưu thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // HealthTrackingFragment.HealthTrackingListener methods
     @Override
     public void onMeasurementAdded() {
         Toast.makeText(this, "Đã thêm chỉ số mới thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // RemindersFragment.RemindersListener methods
     @Override
     public void onReminderAdded() {
         Toast.makeText(this, "Đã thêm nhắc nhở mới thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // MedicalHistoryFragment.MedicalHistoryListener methods
     @Override
     public void onMedicalRecordAdded() {
         Toast.makeText(this, "Đã thêm hồ sơ y tế thành công", Toast.LENGTH_SHORT).show();
     }
 
-    // HealthSuggestionsFragment.HealthSuggestionsListener methods
     @Override
     public void onSuggestionSelected(String suggestionId) {
         Toast.makeText(this, "Đã chọn lời khuyên: " + suggestionId, Toast.LENGTH_SHORT).show();
     }
 
-    // AnalysisAlertsFragment.AnalysisAlertsListener methods
     @Override
     public void onAlertDismissed(String alertId) {
         Toast.makeText(this, "Đã bỏ qua cảnh báo: " + alertId, Toast.LENGTH_SHORT).show();
     }
 
-    // MenstrualCycleFragment.MenstrualCycleListener methods
     @Override
     public void onPeriodLogged(Date date) {
         Toast.makeText(this, "Đã ghi nhận chu kỳ thành công", Toast.LENGTH_SHORT).show();
     }
+
+    private void scheduleNotification(Context context, int hour, int minute, long repeatInterval, String title, String message) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        intent.putExtra("title", title);
+        intent.putExtra("message", message);
+
+        int requestCode = (int) System.currentTimeMillis();
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+        );
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+
+        // Nếu thời gian đã qua, đặt lịch vào ngày hôm sau
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        if (alarmManager != null) {
+            alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    repeatInterval,
+                    pendingIntent
+            );
+        }
+    }
+
 }
 

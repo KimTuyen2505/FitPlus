@@ -20,6 +20,7 @@
             android:layout_marginBottom="16dp" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_health"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -44,26 +45,35 @@
                     android:id="@+id/text_weight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cân nặng: 70 kg"
+                    android:text="Cân nặng: -- kg"
                     android:textColor="@color/text_primary" />
 
                 <TextView
                     android:id="@+id/text_height"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chiều cao: 175 cm"
+                    android:text="Chiều cao: -- cm"
                     android:textColor="@color/text_primary" />
 
                 <TextView
                     android:id="@+id/text_bmi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="BMI: 22.9 (Bình thường)"
+                    android:text="BMI: --"
                     android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/text_last_measurement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Lần đo gần nhất: --"
+                    android:textColor="@color/text_secondary" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_reminders"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -82,6 +92,14 @@
                     android:text="Thao tác nhanh"
                     android:textSize="18sp"
                     android:textColor="@color/accent_blue"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/text_next_reminder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nhắc nhở sắp tới: --"
+                    android:textColor="@color/text_secondary"
                     android:layout_marginBottom="8dp" />
 
                 <Button
@@ -104,6 +122,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_tips"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -128,7 +147,7 @@
                     android:id="@+id/text_health_tip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hãy nhớ uống đủ nước! Mục tiêu 8 ly nước mỗi ngày."
+                    android:text="Đang tải lời khuyên..."
                     android:textColor="@color/text_primary" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

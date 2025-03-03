@@ -13,4 +13,13 @@
     <string name="register_prompt">Bạn chưa có tài khoản? Đăng ký ngay</string>
     <string name="hotline_info">Hotline: 0983253551</string>
 
+    <!-- Lựa chọn nhắc nhở -->
+    <string-array name="interval_options">
+        <item>Mỗi tuần</item>
+        <item>Mỗi ngày</item>
+        <item>Mỗi 2 giờ</item>
+        <item>Mỗi giờ</item>
+        <item>Mỗi phút</item>
+    </string-array>
+
 </resources>

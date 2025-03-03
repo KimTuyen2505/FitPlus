@@ -47,14 +47,10 @@ public class HealthSuggestionsFragment extends Fragment {
     }
 
     private void loadExerciseRecommendations() {
-        // Trong ứng dụng thực tế, dữ liệu này sẽ được tải từ cơ sở dữ liệu hoặc API
-        // Hiện tại, chúng ta chỉ sử dụng dữ liệu mẫu
         textExerciseRecommendations.setText("Dựa trên hồ sơ của bạn, chúng tôi khuyến nghị 30 phút tập thể dục cường độ vừa phải 3-4 lần mỗi tuần. Hãy cân nhắc các hoạt động như đi bộ nhanh, đạp xe hoặc bơi lội. Ngoài ra, hãy bổ sung các bài tập sức mạnh 2 lần mỗi tuần để duy trì khối lượng cơ và mật độ xương.");
     }
 
     private void loadNutritionAdvice() {
-        // Trong ứng dụng thực tế, dữ liệu này sẽ được tải từ cơ sở dữ liệu hoặc API
-        // Hiện tại, chúng ta chỉ sử dụng dữ liệu mẫu
         textNutritionAdvice.setText("Chế độ ăn hiện tại của bạn có thể được cải thiện bằng cách bổ sung thêm trái cây và rau quả. Hãy cố gắng ăn 5 khẩu phần mỗi ngày. Giảm tiêu thụ thực phẩm chế biến sẵn và tăng tiêu thụ ngũ cốc nguyên hạt, protein nạc và chất béo lành mạnh. Hãy uống đủ nước, ít nhất 8 ly mỗi ngày.");
     }
 

@@ -11,12 +11,31 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.cardview.widget.CardView;
+
+import com.example.firstproject.R;
+import com.example.firstproject.dao.UserDAO;
+import com.example.firstproject.dao.HealthMeasurementDAO;
+import com.example.firstproject.models.User;
+import com.example.firstproject.models.HealthMeasurement;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class DashboardFragment extends Fragment {
 
     private DashboardListener listener;
     private TextView textWeight, textHeight, textBMI, textHealthTip;
+    private TextView textLastMeasurement, textNextReminder;
     private Button btnAddMeasurement, btnViewReminders;
+    private CardView cardHealth, cardReminders, cardTips;
+
+    private UserDAO userDAO;
+    private HealthMeasurementDAO healthMeasurementDAO;
+
+    private SimpleDateFormat dateFormat;
 
     public interface DashboardListener {
         void onAddMeasurementClicked();
@@ -31,6 +50,27 @@ public class DashboardFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString() + " must implement DashboardListener");
         }
+
+        // Initialize DAOs
+        userDAO = new UserDAO(context);
+        healthMeasurementDAO = new HealthMeasurementDAO(context);
+
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        userDAO.open();
+        healthMeasurementDAO.open();
+        loadHealthData();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        userDAO.close();
+        healthMeasurementDAO.close();
     }
 
     @Nullable
@@ -43,41 +83,91 @@ public class DashboardFragment extends Fragment {
         textHeight = view.findViewById(R.id.text_height);
         textBMI = view.findViewById(R.id.text_bmi);
         textHealthTip = view.findViewById(R.id.text_health_tip);
+        textLastMeasurement = view.findViewById(R.id.text_last_measurement);
+        textNextReminder = view.findViewById(R.id.text_next_reminder);
         btnAddMeasurement = view.findViewById(R.id.btn_add_measurement);
         btnViewReminders = view.findViewById(R.id.btn_view_reminders);
+        cardHealth = view.findViewById(R.id.card_health);
+        cardReminders = view.findViewById(R.id.card_reminders);
+        cardTips = view.findViewById(R.id.card_tips);
 
         // Set click listeners
-        btnAddMeasurement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onAddMeasurementClicked();
-                }
+        btnAddMeasurement.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onAddMeasurementClicked();
             }
         });
 
-        btnViewReminders.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onViewRemindersClicked();
-                }
+        btnViewReminders.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onViewRemindersClicked();
             }
         });
-
-        // Load data (in a real app, this would come from a database or shared preferences)
-        loadHealthData();
 
         return view;
     }
 
     private void loadHealthData() {
-        // Trong ứng dụng thực tế, dữ liệu này sẽ được tải từ cơ sở dữ liệu hoặc shared preferences
-        // Hiện tại, chúng ta chỉ sử dụng dữ liệu mẫu
-        textWeight.setText("Cân nặng: 70 kg");
-        textHeight.setText("Chiều cao: 175 cm");
-        textBMI.setText("BMI: 22.9 (Bình thường)");
-        textHealthTip.setText("Hãy nhớ uống đủ nước! Mục tiêu 8 ly nước mỗi ngày.");
+        // Load user data
+        User user = userDAO.getCurrentUser();
+        if (user != null) {
+            textWeight.setText(String.format(Locale.getDefault(), "Cân nặng: %.1f kg", user.getWeight()));
+            textHeight.setText(String.format(Locale.getDefault(), "Chiều cao: %.1f cm", user.getHeight()));
+
+            float bmi = user.calculateBMI();
+            String bmiStatus = user.getBMIStatus();
+            textBMI.setText(String.format(Locale.getDefault(), "BMI: %.1f (%s)", bmi, bmiStatus));
+        }
+
+        // Load latest measurements
+        HealthMeasurement latestWeight = healthMeasurementDAO.getLatestMeasurementByType("weight");
+        HealthMeasurement latestHeight = healthMeasurementDAO.getLatestMeasurementByType("height");
+
+        if (latestWeight != null || latestHeight != null) {
+            StringBuilder measurementText = new StringBuilder("Lần đo gần nhất:\n");
+            if (latestWeight != null) {
+                measurementText.append(String.format(Locale.getDefault(),
+                        "Cân nặng: %.1f kg (%s)\n",
+                        latestWeight.getMeasurementValue(),
+                        latestWeight.getMeasurementDate()));
+            }
+            if (latestHeight != null) {
+                measurementText.append(String.format(Locale.getDefault(),
+                        "Chiều cao: %.1f cm (%s)",
+                        latestHeight.getMeasurementValue(),
+                        latestHeight.getMeasurementDate()));
+            }
+            textLastMeasurement.setText(measurementText.toString());
+        } else {
+            textLastMeasurement.setText("Chưa có dữ liệu đo lường");
+        }
+
+        // Update health tips based on user data
+        updateHealthTips(user);
+    }
+
+    private void updateHealthTips(User user) {
+        StringBuilder tips = new StringBuilder();
+
+        if (user != null) {
+            float bmi = user.calculateBMI();
+
+            // BMI-based tips
+            if (bmi < 18.5) {
+                tips.append("• Bạn đang thiếu cân. Hãy tăng cường dinh dưỡng và tham khảo ý kiến bác sĩ.\n");
+            } else if (bmi > 25) {
+                tips.append("• Bạn đang thừa cân. Hãy tập thể dục đều đặn và điều chỉnh chế độ ăn.\n");
+            }
+
+            // General health tips
+            tips.append("• Uống đủ 2L nước mỗi ngày\n");
+            tips.append("• Tập thể dục ít nhất 30 phút/ngày\n");
+            tips.append("• Đảm bảo ngủ đủ 7-8 tiếng mỗi ngày");
+        } else {
+            tips.append("Hãy cập nhật thông tin cá nhân để nhận được lời khuyên phù hợp.");
+        }
+
+        textHealthTip.setText(tips.toString());
     }
 
     @Override
@@ -86,5 +176,4 @@ public class DashboardFragment extends Fragment {
         listener = null;
     }
 }
-
 
