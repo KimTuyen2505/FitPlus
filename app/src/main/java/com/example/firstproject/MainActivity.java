@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.firstproject.services.NotificationHelper;
 import com.example.firstproject.services.NotificationReceiver;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
             }
         }
+
+        NotificationHelper.createNotificationChannel(this);
 
         Date date = new Date();
         scheduleNotification(this, date.getHours(), date.getMinutes() + 1,
