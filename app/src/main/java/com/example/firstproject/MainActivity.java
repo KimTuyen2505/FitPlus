@@ -143,31 +143,6 @@ public class MainActivity extends AppCompatActivity implements
         popupMenu.show();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_medical_history) {
-            loadFragment(new MedicalHistoryFragment());
-            getSupportActionBar().setTitle("Lịch sử y tế");
-            return true;
-        } else if (id == R.id.action_health_suggestions) {
-            loadFragment(new HealthSuggestionsFragment());
-            getSupportActionBar().setTitle("Lời khuyên sức khỏe");
-            return true;
-        } else if (id == R.id.action_analysis_alerts) {
-            loadFragment(new AnalysisAlertsFragment());
-            getSupportActionBar().setTitle("Phân tích & Cảnh báo");
-            return true;
-        } else if (id == R.id.action_menstrual_cycle) {
-            loadFragment(new MenstrualCycleFragment());
-            getSupportActionBar().setTitle("Chu kỳ kinh nguyệt");
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     private void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
@@ -240,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
 
-        // Nếu thời gian đã qua, đặt lịch vào ngày hôm sau
         if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }

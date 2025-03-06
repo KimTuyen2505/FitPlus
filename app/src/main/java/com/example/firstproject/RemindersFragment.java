@@ -137,7 +137,7 @@ public class RemindersFragment extends Fragment {
                         selectedFrequency[0] = "Mỗi ngày";
                         break;
                 }
-                // Bạn có thể lưu repeatInterval vào biến toàn cục hoặc SharedPreferences để dùng khi lưu nhắc nhở
+
             }
 
             @Override
