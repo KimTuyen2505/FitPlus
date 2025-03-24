@@ -46,20 +46,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
-            }
-        }
-
-        NotificationHelper.createNotificationChannel(this);
-
-        Date date = new Date();
-        scheduleNotification(this, date.getHours(), date.getMinutes() + 1,
-                AlarmManager.INTERVAL_HOUR / 60,
-                "Nhắc nhở",
-                "Đã đến giờ uống nước, hãy uống 330ml để thanh lọc cơ thể");
-
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Quản lý sức khỏe");

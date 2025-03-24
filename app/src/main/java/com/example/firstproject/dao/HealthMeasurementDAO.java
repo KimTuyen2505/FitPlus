@@ -1,15 +1,14 @@
 package com.example.firstproject.dao;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.firstproject.dao.DatabaseHelper;
 import com.example.firstproject.models.HealthMeasurement;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class HealthMeasurementDAO {
@@ -17,140 +16,126 @@ public class HealthMeasurementDAO {
     private DatabaseHelper dbHelper;
 
     public HealthMeasurementDAO(Context context) {
-        dbHelper = DatabaseHelper.getInstance(context);
+        dbHelper = new DatabaseHelper(context);
     }
 
+    // Sửa lại phương thức open() để đảm bảo database không null
     public void open() {
-        database = dbHelper.getWritableDatabase();
+        if (database == null || !database.isOpen()) {
+            database = dbHelper.getWritableDatabase();
+        }
     }
 
+    // Sửa lại phương thức close() để kiểm tra trước khi đóng
     public void close() {
-        dbHelper.close();
+        if (database != null && database.isOpen()) {
+            dbHelper.close();
+            database = null;
+        }
     }
 
+    // Thêm chỉ số sức khỏe mới
     public long insertMeasurement(HealthMeasurement measurement) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_MEASUREMENT_TYPE, measurement.getMeasurementType());
-        values.put(DatabaseHelper.COLUMN_MEASUREMENT_VALUE, measurement.getMeasurementValue());
-        values.put(DatabaseHelper.COLUMN_MEASUREMENT_DATE, measurement.getMeasurementDate());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_TYPE, measurement.getType());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_VALUE, measurement.getValue());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_DATE, measurement.getDate().getTime());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_USER_ID, 1); // Mặc định user_id = 1 cho ứng dụng đơn người dùng
 
-        return database.insert(DatabaseHelper.TABLE_HEALTH_MEASUREMENTS, null, values);
+        return database.insert(DatabaseHelper.TABLE_HEALTH_MEASUREMENT, null, values);
     }
 
+    // Cập nhật chỉ số sức khỏe
     public int updateMeasurement(HealthMeasurement measurement) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_MEASUREMENT_TYPE, measurement.getMeasurementType());
-        values.put(DatabaseHelper.COLUMN_MEASUREMENT_VALUE, measurement.getMeasurementValue());
-        values.put(DatabaseHelper.COLUMN_MEASUREMENT_DATE, measurement.getMeasurementDate());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_TYPE, measurement.getType());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_VALUE, measurement.getValue());
+        values.put(DatabaseHelper.COLUMN_MEASUREMENT_DATE, measurement.getDate().getTime());
 
-        return database.update(DatabaseHelper.TABLE_HEALTH_MEASUREMENTS, values,
-                DatabaseHelper.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(measurement.getId())});
+        return database.update(
+                DatabaseHelper.TABLE_HEALTH_MEASUREMENT,
+                values,
+                DatabaseHelper.COLUMN_MEASUREMENT_ID + " = ?",
+                new String[]{String.valueOf(measurement.getId())}
+        );
     }
 
-    public void deleteMeasurement(long id) {
-        database.delete(DatabaseHelper.TABLE_HEALTH_MEASUREMENTS,
-                DatabaseHelper.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(id)});
+    // Xóa chỉ số sức khỏe
+    public int deleteMeasurement(long id) {
+        return database.delete(
+                DatabaseHelper.TABLE_HEALTH_MEASUREMENT,
+                DatabaseHelper.COLUMN_MEASUREMENT_ID + " = ?",
+                new String[]{String.valueOf(id)}
+        );
     }
 
-    public List<HealthMeasurement> getAllMeasurements() {
-        List<HealthMeasurement> measurements = new ArrayList<>();
-
-        Cursor cursor = database.query(DatabaseHelper.TABLE_HEALTH_MEASUREMENTS,
-                null, null, null, null, null,
-                DatabaseHelper.COLUMN_MEASUREMENT_DATE + " DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                HealthMeasurement measurement = cursorToMeasurement(cursor);
-                measurements.add(measurement);
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-
-        return measurements;
-    }
-
+    // Thêm kiểm tra null trong các phương thức truy vấn
     public List<HealthMeasurement> getMeasurementsByType(String type) {
         List<HealthMeasurement> measurements = new ArrayList<>();
 
-        Cursor cursor = database.query(DatabaseHelper.TABLE_HEALTH_MEASUREMENTS,
-                null,
-                DatabaseHelper.COLUMN_MEASUREMENT_TYPE + " = ?",
-                new String[]{type},
-                null, null,
-                DatabaseHelper.COLUMN_MEASUREMENT_DATE + " DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                HealthMeasurement measurement = cursorToMeasurement(cursor);
-                measurements.add(measurement);
-            } while (cursor.moveToNext());
-            cursor.close();
+        if (database == null) {
+            open();
         }
 
-        return measurements;
-    }
+        if (database != null) {
+            Cursor cursor = database.query(
+                    DatabaseHelper.TABLE_HEALTH_MEASUREMENT,
+                    null,
+                    DatabaseHelper.COLUMN_MEASUREMENT_TYPE + " = ?",
+                    new String[]{type},
+                    null,
+                    null,
+                    DatabaseHelper.COLUMN_MEASUREMENT_DATE + " DESC"
+            );
 
-    public HealthMeasurement getLatestMeasurementByType(String type) {
-        HealthMeasurement measurement = null;
-
-        String[] columns = {
-                DatabaseHelper.COLUMN_ID,
-                DatabaseHelper.COLUMN_MEASUREMENT_TYPE,
-                DatabaseHelper.COLUMN_MEASUREMENT_VALUE,
-                DatabaseHelper.COLUMN_MEASUREMENT_DATE,
-                DatabaseHelper.COLUMN_CREATED_AT
-        };
-
-        String selection = DatabaseHelper.COLUMN_MEASUREMENT_TYPE + " = ?";
-        String[] selectionArgs = {type};
-        String orderBy = DatabaseHelper.COLUMN_MEASUREMENT_DATE + " DESC";
-        String limit = "1";
-
-        Cursor cursor = database.query(
-                DatabaseHelper.TABLE_HEALTH_MEASUREMENTS,
-                columns,
-                selection,
-                selectionArgs,
-                null,  // groupBy
-                null,  // having
-                orderBy,
-                limit
-        );
-
-        if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    measurement = new HealthMeasurement();
-                    measurement.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ID)));
-                    measurement.setMeasurementType(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_TYPE)));
-                    measurement.setMeasurementValue(cursor.getFloat(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_VALUE)));
-                    measurement.setMeasurementDate(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_DATE)));
-                    measurement.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CREATED_AT)));
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    HealthMeasurement measurement = cursorToMeasurement(cursor);
+                    measurements.add(measurement);
+                    cursor.moveToNext();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
                 cursor.close();
             }
         }
 
+        return measurements;
+    }
+
+    // Lấy chỉ số sức khỏe mới nhất theo loại
+    public HealthMeasurement getLatestMeasurementByType(String type) {
+        HealthMeasurement measurement = null;
+        Cursor cursor = database.query(
+                DatabaseHelper.TABLE_HEALTH_MEASUREMENT,
+                null,
+                DatabaseHelper.COLUMN_MEASUREMENT_TYPE + " = ?",
+                new String[]{type},
+                null,
+                null,
+                DatabaseHelper.COLUMN_MEASUREMENT_DATE + " DESC",
+                "1"
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            measurement = cursorToMeasurement(cursor);
+            cursor.close();
+        }
+
         return measurement;
     }
 
-
-
-    @SuppressLint("Range")
+    // Chuyển đổi Cursor thành đối tượng HealthMeasurement
     private HealthMeasurement cursorToMeasurement(Cursor cursor) {
         HealthMeasurement measurement = new HealthMeasurement();
-        measurement.setId(cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_ID)));
-        measurement.setMeasurementType(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_MEASUREMENT_TYPE)));
-        measurement.setMeasurementValue(cursor.getFloat(cursor.getColumnIndex(DatabaseHelper.COLUMN_MEASUREMENT_VALUE)));
-        measurement.setMeasurementDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_MEASUREMENT_DATE)));
-        measurement.setCreatedAt(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CREATED_AT)));
+        measurement.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_ID)));
+        measurement.setType(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_TYPE)));
+        measurement.setValue(cursor.getFloat(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_VALUE)));
+
+        long dateMillis = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEASUREMENT_DATE));
+        measurement.setDate(new Date(dateMillis));
+
         return measurement;
     }
 }
+
 

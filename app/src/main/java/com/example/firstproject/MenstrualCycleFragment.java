@@ -86,7 +86,7 @@ public class MenstrualCycleFragment extends Fragment {
     }
 
     private void loadCycleData() {
-        currentCycle = menstrualCycleDAO.getLatestCycle();
+        currentCycle = menstrualCycleDAO.getLatestMenstrualCycle();
         if (currentCycle != null) {
             updateCycleInfo();
         } else {
@@ -102,7 +102,7 @@ public class MenstrualCycleFragment extends Fragment {
         String endDate = currentCycle.getEndDate() != null ?
                 dateFormat.format(currentCycle.getEndDate()) : "Đang diễn ra";
 
-        int cycleLength = currentCycle.getCycleLength();
+        int cycleLength = currentCycle.calculatePeriodLength();
 
         StringBuilder info = new StringBuilder();
         info.append("Chu kỳ gần nhất:\n");
@@ -169,12 +169,12 @@ public class MenstrualCycleFragment extends Fragment {
             // If there's an ongoing cycle, end it
             if (currentCycle != null && currentCycle.getEndDate() == null) {
                 currentCycle.setEndDate(new Date());
-                menstrualCycleDAO.updateCycle(currentCycle);
+                menstrualCycleDAO.updateMenstrualCycle(currentCycle);
             }
 
             // Start new cycle
             MenstrualCycle newCycle = new MenstrualCycle(selectedDate[0], null, symptoms);
-            long id = menstrualCycleDAO.insertCycle(newCycle);
+            long id = menstrualCycleDAO.insertMenstrualCycle(newCycle);
             newCycle.setId(id);
             currentCycle = newCycle;
 

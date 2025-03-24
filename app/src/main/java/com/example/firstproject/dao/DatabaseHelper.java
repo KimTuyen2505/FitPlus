@@ -5,108 +5,119 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "HealthManagement.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "health_management.db";
+    private static final int DATABASE_VERSION = 2; // Tăng version để trigger onUpgrade
 
-    // Table names
-    public static final String TABLE_REMINDERS = "reminders";
-    public static final String TABLE_USERS = "users";
-    public static final String TABLE_HEALTH_MEASUREMENTS = "health_measurements";
-    public static final String TABLE_MEDICAL_RECORDS = "medical_records";
-    public static final String TABLE_MENSTRUAL_CYCLES = "menstrual_cycles";
+    // Bảng User
+    public static final String TABLE_USER = "user";
+    public static final String COLUMN_USER_ID = "id";
+    public static final String COLUMN_USER_NAME = "name";
+    public static final String COLUMN_USER_AGE = "age";
+    public static final String COLUMN_USER_GENDER = "gender";
+    public static final String COLUMN_USER_HEIGHT = "height";
+    public static final String COLUMN_USER_WEIGHT = "weight";
+    public static final String COLUMN_USER_BLOOD_TYPE = "blood_type";
 
-    // Common column names
-    public static final String COLUMN_ID = "id";
-    public static final String COLUMN_CREATED_AT = "created_at";
-    public static final String COLUMN_UPDATED_AT = "updated_at";
+    // Bảng HealthMeasurement
+    public static final String TABLE_HEALTH_MEASUREMENT = "health_measurement";
+    public static final String COLUMN_MEASUREMENT_ID = "id";
+    public static final String COLUMN_MEASUREMENT_TYPE = "type";
+    public static final String COLUMN_MEASUREMENT_VALUE = "value";
+    public static final String COLUMN_MEASUREMENT_DATE = "date";
+    public static final String COLUMN_MEASUREMENT_USER_ID = "user_id";
 
-    // REMINDERS table columns
-    public static final String COLUMN_TITLE = "title";
-    public static final String COLUMN_TIME = "time";
-    public static final String COLUMN_FREQUENCY = "frequency";
-    public static final String COLUMN_TYPE = "type";
-    public static final String COLUMN_TARGET = "target";
-    public static final String COLUMN_CURRENT = "current";
-    public static final String COLUMN_PROGRESS = "progress";
+    // Bảng Reminder
+    public static final String TABLE_REMINDER = "reminder";
+    public static final String COLUMN_REMINDER_ID = "id";
+    public static final String COLUMN_REMINDER_TITLE = "title";
+    public static final String COLUMN_REMINDER_TIME = "time";
+    public static final String COLUMN_REMINDER_FREQUENCY = "frequency";
+    public static final String COLUMN_REMINDER_USER_ID = "user_id";
+    public static final String COLUMN_REMINDER_IS_ACTIVE = "is_active"; // Thêm cột mới
 
-    // Cột bảng users
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_AGE = "age";
-    public static final String COLUMN_GENDER = "gender";
-    public static final String COLUMN_HEIGHT = "height";
-    public static final String COLUMN_WEIGHT = "weight";
+    // Bảng MedicalRecord
+    public static final String TABLE_MEDICAL_RECORD = "medical_record";
+    public static final String COLUMN_MEDICAL_RECORD_ID = "id";
+    public static final String COLUMN_MEDICAL_RECORD_TITLE = "title";
+    public static final String COLUMN_MEDICAL_RECORD_DESCRIPTION = "description";
+    public static final String COLUMN_MEDICAL_RECORD_DATE = "date";
+    public static final String COLUMN_MEDICAL_RECORD_DOCTOR = "doctor";
+    public static final String COLUMN_MEDICAL_RECORD_USER_ID = "user_id";
 
-    // Cột bảng health_measurements
-    public static final String COLUMN_MEASUREMENT_TYPE = "measurement_type";
-    public static final String COLUMN_MEASUREMENT_VALUE = "measurement_value";
-    public static final String COLUMN_MEASUREMENT_DATE = "measurement_date";
+    // Bảng MenstrualCycle
+    public static final String TABLE_MENSTRUAL_CYCLE = "menstrual_cycle";
+    public static final String COLUMN_MENSTRUAL_CYCLE_ID = "id";
+    public static final String COLUMN_MENSTRUAL_CYCLE_START_DATE = "start_date";
+    public static final String COLUMN_MENSTRUAL_CYCLE_END_DATE = "end_date";
+    public static final String COLUMN_MENSTRUAL_CYCLE_SYMPTOMS = "symptoms";
+    public static final String COLUMN_MENSTRUAL_CYCLE_NOTES = "notes";
+    public static final String COLUMN_MENSTRUAL_CYCLE_USER_ID = "user_id";
 
-    // Cột bảng medical_records
-    public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_DOCTOR = "doctor";
-    public static final String COLUMN_NOTES = "notes";
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
 
-    // Cột bảng menstrual_cycles
-    public static final String COLUMN_START_DATE = "start_date";
-    public static final String COLUMN_END_DATE = "end_date";
-    public static final String COLUMN_SYMPTOMS = "symptoms";
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // Tạo bảng User
+        String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
+                + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_USER_NAME + " TEXT,"
+                + COLUMN_USER_AGE + " INTEGER,"
+                + COLUMN_USER_GENDER + " TEXT,"
+                + COLUMN_USER_HEIGHT + " REAL,"
+                + COLUMN_USER_WEIGHT + " REAL,"
+                + COLUMN_USER_BLOOD_TYPE + " TEXT"
+                + ")";
+        db.execSQL(CREATE_USER_TABLE);
 
-    // Create table statements
-    private static final String CREATE_TABLE_REMINDERS = "CREATE TABLE " + TABLE_REMINDERS + "("
-            + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + COLUMN_TITLE + " TEXT NOT NULL,"
-            + COLUMN_TIME + " TEXT NOT NULL,"
-            + COLUMN_FREQUENCY + " TEXT NOT NULL,"
-            + COLUMN_TYPE + " TEXT NOT NULL,"
-            + COLUMN_TARGET + " REAL,"
-            + COLUMN_CURRENT + " REAL,"
-            + COLUMN_PROGRESS + " REAL,"
-            + COLUMN_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-            + COLUMN_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP"
-            + ")";
+        // Tạo bảng HealthMeasurement
+        String CREATE_HEALTH_MEASUREMENT_TABLE = "CREATE TABLE " + TABLE_HEALTH_MEASUREMENT + "("
+                + COLUMN_MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_MEASUREMENT_TYPE + " TEXT,"
+                + COLUMN_MEASUREMENT_VALUE + " REAL,"
+                + COLUMN_MEASUREMENT_DATE + " INTEGER,"
+                + COLUMN_MEASUREMENT_USER_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_MEASUREMENT_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                + ")";
+        db.execSQL(CREATE_HEALTH_MEASUREMENT_TABLE);
 
-    // SQL tạo bảng users
-    private static final String SQL_CREATE_USERS_TABLE =
-            "CREATE TABLE " + TABLE_USERS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_NAME + " TEXT, " +
-                    COLUMN_AGE + " INTEGER, " +
-                    COLUMN_GENDER + " TEXT, " +
-                    COLUMN_HEIGHT + " REAL, " +
-                    COLUMN_WEIGHT + " REAL, " +
-                    COLUMN_CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                    ")";
+        // Tạo bảng Reminder
+        String CREATE_REMINDER_TABLE = "CREATE TABLE " + TABLE_REMINDER + "("
+                + COLUMN_REMINDER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_REMINDER_TITLE + " TEXT,"
+                + COLUMN_REMINDER_TIME + " TEXT,"
+                + COLUMN_REMINDER_FREQUENCY + " TEXT,"
+                + COLUMN_REMINDER_IS_ACTIVE + " INTEGER DEFAULT 1," // Mặc định là active (1)
+                + COLUMN_REMINDER_USER_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_REMINDER_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                + ")";
+        db.execSQL(CREATE_REMINDER_TABLE);
 
-    // SQL tạo bảng health_measurements
-    private static final String SQL_CREATE_HEALTH_MEASUREMENTS_TABLE =
-            "CREATE TABLE " + TABLE_HEALTH_MEASUREMENTS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_MEASUREMENT_TYPE + " TEXT, " +
-                    COLUMN_MEASUREMENT_VALUE + " REAL, " +
-                    COLUMN_MEASUREMENT_DATE + " TIMESTAMP, " +
-                    COLUMN_CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                    ")";
+        // Tạo bảng MedicalRecord
+        String CREATE_MEDICAL_RECORD_TABLE = "CREATE TABLE " + TABLE_MEDICAL_RECORD + "("
+                + COLUMN_MEDICAL_RECORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_MEDICAL_RECORD_TITLE + " TEXT,"
+                + COLUMN_MEDICAL_RECORD_DESCRIPTION + " TEXT,"
+                + COLUMN_MEDICAL_RECORD_DATE + " INTEGER,"
+                + COLUMN_MEDICAL_RECORD_DOCTOR + " TEXT,"
+                + COLUMN_MEDICAL_RECORD_USER_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_MEDICAL_RECORD_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                + ")";
+        db.execSQL(CREATE_MEDICAL_RECORD_TABLE);
 
-    // SQL tạo bảng medical_records
-    private static final String SQL_CREATE_MEDICAL_RECORDS_TABLE =
-            "CREATE TABLE " + TABLE_MEDICAL_RECORDS + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_TITLE + " TEXT, " +
-                    COLUMN_DATE + " TEXT, " +
-                    COLUMN_DOCTOR + " TEXT, " +
-                    COLUMN_NOTES + " TEXT, " +
-                    COLUMN_CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                    ")";
-
-    // SQL tạo bảng menstrual_cycles
-    private static final String SQL_CREATE_MENSTRUAL_CYCLES_TABLE =
-            "CREATE TABLE " + TABLE_MENSTRUAL_CYCLES + " (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_START_DATE + " TIMESTAMP, " +
-                    COLUMN_END_DATE + " TIMESTAMP, " +
-                    COLUMN_SYMPTOMS + " TEXT, " +
-                    COLUMN_CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                    ")";
+        // Tạo bảng MenstrualCycle
+        String CREATE_MENSTRUAL_CYCLE_TABLE = "CREATE TABLE " + TABLE_MENSTRUAL_CYCLE + "("
+                + COLUMN_MENSTRUAL_CYCLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_MENSTRUAL_CYCLE_START_DATE + " INTEGER,"
+                + COLUMN_MENSTRUAL_CYCLE_END_DATE + " INTEGER,"
+                + COLUMN_MENSTRUAL_CYCLE_SYMPTOMS + " TEXT,"
+                + COLUMN_MENSTRUAL_CYCLE_NOTES + " TEXT,"
+                + COLUMN_MENSTRUAL_CYCLE_USER_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_MENSTRUAL_CYCLE_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                + ")";
+        db.execSQL(CREATE_MENSTRUAL_CYCLE_TABLE);
+    }
 
     // Instance duy nhất của DatabaseHelper (Singleton pattern)
     private static DatabaseHelper instance;
@@ -119,27 +130,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return instance;
     }
 
-    public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_REMINDERS);
-        db.execSQL(SQL_CREATE_USERS_TABLE);
-        db.execSQL(SQL_CREATE_HEALTH_MEASUREMENTS_TABLE);
-        db.execSQL(SQL_CREATE_MEDICAL_RECORDS_TABLE);
-        db.execSQL(SQL_CREATE_MENSTRUAL_CYCLES_TABLE);
-    }
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMINDERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_HEALTH_MEASUREMENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICAL_RECORDS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENSTRUAL_CYCLES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMINDER);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_HEALTH_MEASUREMENT);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICAL_RECORD);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENSTRUAL_CYCLE);
 
         // Create tables again
         onCreate(db);

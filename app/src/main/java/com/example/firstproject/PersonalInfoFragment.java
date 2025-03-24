@@ -121,7 +121,7 @@ public class PersonalInfoFragment extends Fragment {
 
             // Calculate and show BMI
             float bmi = currentUser.calculateBMI();
-            String bmiStatus = currentUser.getBMIStatus();
+            String bmiStatus = currentUser.getBMICategory();
             Toast.makeText(getContext(),
                     String.format("BMI: %.1f - %s", bmi, bmiStatus),
                     Toast.LENGTH_LONG).show();

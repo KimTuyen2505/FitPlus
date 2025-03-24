@@ -1,15 +1,14 @@
 package com.example.firstproject.dao;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.firstproject.dao.DatabaseHelper;
 import com.example.firstproject.models.MedicalRecord;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MedicalRecordDAO {
@@ -17,88 +16,120 @@ public class MedicalRecordDAO {
     private DatabaseHelper dbHelper;
 
     public MedicalRecordDAO(Context context) {
-        dbHelper = DatabaseHelper.getInstance(context);
+        dbHelper = new DatabaseHelper(context);
     }
 
+    // Sửa lại phương thức open() để đảm bảo database không null
     public void open() {
-        database = dbHelper.getWritableDatabase();
+        if (database == null || !database.isOpen()) {
+            database = dbHelper.getWritableDatabase();
+        }
     }
 
+    // Sửa lại phương thức close() để kiểm tra trước khi đóng
     public void close() {
-        dbHelper.close();
+        if (database != null && database.isOpen()) {
+            dbHelper.close();
+            database = null;
+        }
     }
 
-    public long insertRecord(MedicalRecord record) {
+    // Thêm hồ sơ y tế mới
+    public long insertMedicalRecord(MedicalRecord record) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_TITLE, record.getTitle());
-        values.put(DatabaseHelper.COLUMN_DATE, record.getDate());
-        values.put(DatabaseHelper.COLUMN_DOCTOR, record.getDoctor());
-        values.put(DatabaseHelper.COLUMN_NOTES, record.getNotes());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_TITLE, record.getTitle());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DESCRIPTION, record.getDescription());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE, record.getDate().getTime());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR, record.getDoctor());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_USER_ID, 1); // Mặc định user_id = 1 cho ứng dụng đơn người dùng
 
-        return database.insert(DatabaseHelper.TABLE_MEDICAL_RECORDS, null, values);
+        return database.insert(DatabaseHelper.TABLE_MEDICAL_RECORD, null, values);
     }
 
-    public int updateRecord(MedicalRecord record) {
+    // Cập nhật hồ sơ y tế
+    public int updateMedicalRecord(MedicalRecord record) {
         ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.COLUMN_TITLE, record.getTitle());
-        values.put(DatabaseHelper.COLUMN_DATE, record.getDate());
-        values.put(DatabaseHelper.COLUMN_DOCTOR, record.getDoctor());
-        values.put(DatabaseHelper.COLUMN_NOTES, record.getNotes());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_TITLE, record.getTitle());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DESCRIPTION, record.getDescription());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE, record.getDate().getTime());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR, record.getDoctor());
 
-        return database.update(DatabaseHelper.TABLE_MEDICAL_RECORDS, values,
-                DatabaseHelper.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(record.getId())});
+        return database.update(
+                DatabaseHelper.TABLE_MEDICAL_RECORD,
+                values,
+                DatabaseHelper.COLUMN_MEDICAL_RECORD_ID + " = ?",
+                new String[]{String.valueOf(record.getId())}
+        );
     }
 
-    public void deleteRecord(long id) {
-        database.delete(DatabaseHelper.TABLE_MEDICAL_RECORDS,
-                DatabaseHelper.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(id)});
+    // Xóa hồ sơ y tế
+    public int deleteMedicalRecord(long id) {
+        return database.delete(
+                DatabaseHelper.TABLE_MEDICAL_RECORD,
+                DatabaseHelper.COLUMN_MEDICAL_RECORD_ID + " = ?",
+                new String[]{String.valueOf(id)}
+        );
     }
 
-    public List<MedicalRecord> getAllRecords() {
+    // Lấy tất cả hồ sơ y tế
+    public List<MedicalRecord> getAllMedicalRecords() {
         List<MedicalRecord> records = new ArrayList<>();
+        Cursor cursor = database.query(
+                DatabaseHelper.TABLE_MEDICAL_RECORD,
+                null,
+                null,
+                null,
+                null,
+                null,
+                DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE + " DESC"
+        );
 
-        Cursor cursor = database.query(DatabaseHelper.TABLE_MEDICAL_RECORDS,
-                null, null, null, null, null,
-                DatabaseHelper.COLUMN_DATE + " DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                MedicalRecord record = cursorToRecord(cursor);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                MedicalRecord record = cursorToMedicalRecord(cursor);
                 records.add(record);
-            } while (cursor.moveToNext());
+                cursor.moveToNext();
+            }
             cursor.close();
         }
 
         return records;
     }
 
-    public MedicalRecord getRecord(long id) {
-        Cursor cursor = database.query(DatabaseHelper.TABLE_MEDICAL_RECORDS,
+    // Lấy hồ sơ y tế theo ID
+    public MedicalRecord getMedicalRecordById(long id) {
+        MedicalRecord record = null;
+        Cursor cursor = database.query(
+                DatabaseHelper.TABLE_MEDICAL_RECORD,
                 null,
-                DatabaseHelper.COLUMN_ID + " = ?",
+                DatabaseHelper.COLUMN_MEDICAL_RECORD_ID + " = ?",
                 new String[]{String.valueOf(id)},
-                null, null, null);
+                null,
+                null,
+                null
+        );
 
-        if (cursor != null) {
-            cursor.moveToFirst();
-            MedicalRecord record = cursorToRecord(cursor);
+        if (cursor != null && cursor.moveToFirst()) {
+            record = cursorToMedicalRecord(cursor);
             cursor.close();
-            return record;
         }
-        return null;
+
+        return record;
     }
-    @SuppressLint("Range")
-    private MedicalRecord cursorToRecord(Cursor cursor) {
+
+    // Chuyển đổi Cursor thành đối tượng MedicalRecord
+    private MedicalRecord cursorToMedicalRecord(Cursor cursor) {
         MedicalRecord record = new MedicalRecord();
-        record.setId(cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_ID)));
-        record.setTitle(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_TITLE)));
-        record.setDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE)));
-        record.setDoctor(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DOCTOR)));
-        record.setNotes(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_NOTES)));
-        record.setCreatedAt(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_CREATED_AT)));
+        record.setId(cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_ID)));
+        record.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_TITLE)));
+        record.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_DESCRIPTION)));
+
+        long dateMillis = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE));
+        record.setDate(new Date(dateMillis));
+
+        record.setDoctor(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR)));
+
         return record;
     }
 }
-

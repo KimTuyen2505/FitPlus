@@ -1,6 +1,6 @@
 package com.example.firstproject;
 
-import android.app.AlarmManager;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -8,11 +8,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +28,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.firstproject.R;
+import com.example.firstproject.dao.ReminderDAO;
+import com.example.firstproject.models.Reminder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,6 +45,8 @@ public class RemindersFragment extends Fragment {
     private RecyclerView recyclerReminders;
     private FloatingActionButton fabAddReminder;
     private List<Reminder> reminderList;
+    private ReminderAdapter adapter;
+    private ReminderDAO reminderDAO;
 
     public interface RemindersListener {
         void onReminderAdded();
@@ -46,6 +60,22 @@ public class RemindersFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString() + " must implement RemindersListener");
         }
+
+        // Initialize DAO
+        reminderDAO = new ReminderDAO(context);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        reminderDAO.open();
+        loadReminders();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        reminderDAO.close();
     }
 
     @Nullable
@@ -53,34 +83,24 @@ public class RemindersFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reminders, container, false);
 
-        // Initialize views
         recyclerReminders = view.findViewById(R.id.recycler_reminders);
         fabAddReminder = view.findViewById(R.id.fab_add_reminder);
 
-        // Set up RecyclerView
         recyclerReminders.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize reminder list
         reminderList = new ArrayList<>();
-
-        // Add some dummy reminders
-        reminderList.add(new Reminder("Uống thuốc", "8:00 sáng", "Hàng ngày"));
-        reminderList.add(new Reminder("Uống nước", "Mỗi 2 giờ", "Hàng ngày"));
-        reminderList.add(new Reminder("Tập thể dục", "5:00 chiều", "Thứ Hai, Thứ Tư, Thứ Sáu"));
-
-        // Set adapter
-        ReminderAdapter adapter = new ReminderAdapter(reminderList);
+        adapter = new ReminderAdapter(reminderList);
         recyclerReminders.setAdapter(adapter);
 
-        // Set click listener for add reminder button
-        fabAddReminder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddReminderDialog();
-            }
-        });
+        fabAddReminder.setOnClickListener(v -> showAddReminderDialog());
 
         return view;
+    }
+
+    private void loadReminders() {
+        reminderList.clear();
+        reminderList.addAll(reminderDAO.getAllReminders());
+        adapter.notifyDataSetChanged();
     }
 
     private void showAddReminderDialog() {
@@ -89,95 +109,73 @@ public class RemindersFragment extends Fragment {
         builder.setView(dialogView);
 
         final EditText editTitle = dialogView.findViewById(R.id.edit_title);
+        final EditText editTime = dialogView.findViewById(R.id.edit_time);
+        final RadioGroup radioFrequency = dialogView.findViewById(R.id.radio_frequency);
+
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
-        TextView textTime = dialogView.findViewById(R.id.text_time);
-        final String[] formattedTime = {""};
-        textTime.setOnClickListener(view -> {
-            // Lấy giờ và phút hiện tại
-            Calendar calendar = Calendar.getInstance();
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-            formattedTime[0] = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
+        // Xử lý chọn thời gian
+        editTime.setOnClickListener(v -> {
+            Calendar currentTime = Calendar.getInstance();
+            int hour = currentTime.get(Calendar.HOUR_OF_DAY);
+            int minute = currentTime.get(Calendar.MINUTE);
 
-            // Tạo TimePickerDialog
             TimePickerDialog timePickerDialog = new TimePickerDialog(
                     getContext(),
-                    (view1, selectedHour, selectedMinute) -> {
-                        // Định dạng thành HH:mm
-                        formattedTime[0] = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
-                        textTime.setText(formattedTime[0]);
+                    (view, hourOfDay, selectedMinute) -> {
+                        editTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, selectedMinute));
                     },
-                    hour, minute, true // true = 24h format
+                    hour,
+                    minute,
+                    true
             );
+
             timePickerDialog.show();
-        });
-
-        Spinner spinnerFrequency = dialogView.findViewById(R.id.spinner_frequency);
-        final String[] selectedFrequency = {""};
-        spinnerFrequency.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long repeatInterval;
-                switch (position) {
-                    case 0:
-                        selectedFrequency[0] = "Hàng tuần";
-                        break;
-                    case 2:
-                        selectedFrequency[0] = "Mỗi 2 giờ";
-                        break;
-                    case 3:
-                        selectedFrequency[0] = "Mỗi giờ";
-                        break;
-                    case 4:
-                        selectedFrequency[0] = "Mỗi phút";
-                        break;
-                    default:
-                        selectedFrequency[0] = "Mỗi ngày";
-                        break;
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
         });
 
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = editTitle.getText().toString();
-                String time = formattedTime[0];
-                String frequency = selectedFrequency[0];
+        btnSave.setOnClickListener(v -> {
+            String title = editTitle.getText().toString();
+            String time = editTime.getText().toString();
 
-                if (!title.isEmpty() && !time.isEmpty() && !frequency.isEmpty()) {
-                    // Add new reminder to the list
-                    reminderList.add(new Reminder(title, time, frequency));
+            // Lấy tần suất từ RadioGroup
+            String frequency = "";
+            int selectedId = radioFrequency.getCheckedRadioButtonId();
 
-                    // Update the adapter
-                    recyclerReminders.getAdapter().notifyItemInserted(reminderList.size() - 1);
+            if (selectedId == R.id.radio_daily) {
+                frequency = Reminder.FREQUENCY_DAILY;
+            }  else if (selectedId == R.id.radio_minute) {
+                frequency = Reminder.FREQUENCY_MINUTE;
+            }
 
-                    // Notify the listener
-                    if (listener != null) {
-                        listener.onReminderAdded();
-                    }
+            if (!title.isEmpty() && !time.isEmpty() && !frequency.isEmpty()) {
+                Reminder reminder = new Reminder(title, time, frequency);
+                long id = reminderDAO.insertReminder(reminder);
+                reminder.setId(id);
+
+                // Lên lịch thông báo
+                reminder.scheduleNotification(getContext());
+
+                reminderList.add(0, reminder);
+                adapter.notifyItemInserted(0);
+                recyclerReminders.scrollToPosition(0);
+
+                if (listener != null) {
+                    listener.onReminderAdded();
                 }
 
-                dialog.dismiss();
+                Toast.makeText(getContext(),
+                        "Đã thêm nhắc nhở và lên lịch thông báo",
+                        Toast.LENGTH_SHORT).show();
             }
+
+            dialog.dismiss();
         });
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
     }
 
     @Override
@@ -186,32 +184,6 @@ public class RemindersFragment extends Fragment {
         listener = null;
     }
 
-    // Reminder model class
-    public static class Reminder {
-        private String title;
-        private String time;
-        private String frequency;
-
-        public Reminder(String title, String time, String frequency) {
-            this.title = title;
-            this.time = time;
-            this.frequency = frequency;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public String getFrequency() {
-            return frequency;
-        }
-    }
-
-    // Reminder adapter class
     public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder> {
 
         private List<Reminder> reminders;
@@ -223,7 +195,8 @@ public class RemindersFragment extends Fragment {
         @NonNull
         @Override
         public ReminderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_reminder, parent, false);
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_reminder, parent, false);
             return new ReminderViewHolder(view);
         }
 
@@ -241,20 +214,40 @@ public class RemindersFragment extends Fragment {
         class ReminderViewHolder extends RecyclerView.ViewHolder {
 
             private TextView textTitle, textTime, textFrequency;
+            private SwitchMaterial switchActive;
 
             public ReminderViewHolder(@NonNull View itemView) {
                 super(itemView);
                 textTitle = itemView.findViewById(R.id.text_title);
                 textTime = itemView.findViewById(R.id.text_time);
                 textFrequency = itemView.findViewById(R.id.text_frequency);
+                switchActive = itemView.findViewById(R.id.switch_active);
             }
 
             public void bind(Reminder reminder) {
                 textTitle.setText(reminder.getTitle());
                 textTime.setText(reminder.getTime());
                 textFrequency.setText(reminder.getFrequency());
+                switchActive.setChecked(reminder.isActive());
+
+                // Xử lý khi bật/tắt nhắc nhở
+                switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    reminder.setActive(isChecked);
+                    reminderDAO.updateReminder(reminder);
+
+                    if (isChecked) {
+                        reminder.scheduleNotification(getContext());
+                        Toast.makeText(getContext(),
+                                "Đã bật nhắc nhở",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        reminder.cancelNotification(getContext());
+                        Toast.makeText(getContext(),
+                                "Đã tắt nhắc nhở",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }
     }
 }
-

@@ -19,12 +19,6 @@
             android:textColor="@color/accent_blue"
             android:layout_marginBottom="16dp" />
 
-        <FrameLayout
-            android:id="@+id/chart_weight_container"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginBottom="16dp" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,10 +27,10 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="8dp" />
 
-        <FrameLayout
-            android:id="@+id/chart_height_container"
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_weight"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="250dp"
             android:layout_marginBottom="16dp" />
 
         <TextView
@@ -46,6 +40,35 @@
             android:textSize="18sp"
             android:textColor="@color/text_primary"
             android:layout_marginBottom="8dp" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_height"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Theo dõi nhịp tim"
+            android:textSize="18sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart_heart_rate"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/text_heart_rate_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Trạng thái nhịp tim: Chưa có dữ liệu"
+            android:textSize="16sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/btn_add_measurement"

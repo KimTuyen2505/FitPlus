@@ -1,24 +1,26 @@
 package com.example.firstproject.models;
 
+import java.util.Date;
+
 public class MedicalRecord {
     private long id;
     private String title;
-    private String date;
+    private String description;
+    private Date date;
     private String doctor;
-    private String notes;
-    private String createdAt;
+    private long userId;
 
     public MedicalRecord() {
+        this.date = new Date();
     }
 
-    public MedicalRecord(String title, String date, String doctor, String notes) {
+    public MedicalRecord(String title, String description, Date date, String doctor) {
         this.title = title;
+        this.description = description;
         this.date = date;
         this.doctor = doctor;
-        this.notes = notes;
     }
 
-    // Getters and Setters
     public long getId() {
         return id;
     }
@@ -35,11 +37,19 @@ public class MedicalRecord {
         this.title = title;
     }
 
-    public String getDate() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -51,20 +61,13 @@ public class MedicalRecord {
         this.doctor = doctor;
     }
 
-    public String getNotes() {
-        return notes;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }
+
 

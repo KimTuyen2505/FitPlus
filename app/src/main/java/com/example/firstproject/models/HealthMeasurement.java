@@ -1,22 +1,34 @@
 package com.example.firstproject.models;
+import java.util.Date;
 
 public class HealthMeasurement {
     private long id;
-    private String measurementType;
-    private float measurementValue;
-    private String measurementDate;
-    private String createdAt;
+    private String type; // "weight", "height", "blood_pressure", "heart_rate", etc.
+    private float value;
+    private Date date;
+
+    // Các loại đo lường
+    public static final String TYPE_WEIGHT = "weight";
+    public static final String TYPE_HEIGHT = "height";
+    public static final String TYPE_BLOOD_PRESSURE = "blood_pressure";
+    public static final String TYPE_HEART_RATE = "heart_rate";
 
     public HealthMeasurement() {
+        this.date = new Date();
     }
 
-    public HealthMeasurement(String measurementType, float measurementValue, String measurementDate) {
-        this.measurementType = measurementType;
-        this.measurementValue = measurementValue;
-        this.measurementDate = measurementDate;
+    public HealthMeasurement(String type, float value) {
+        this.type = type;
+        this.value = value;
+        this.date = new Date();
     }
 
-    // Getters and Setters
+    public HealthMeasurement(String type, float value, Date date) {
+        this.type = type;
+        this.value = value;
+        this.date = date;
+    }
+
     public long getId() {
         return id;
     }
@@ -25,36 +37,52 @@ public class HealthMeasurement {
         this.id = id;
     }
 
-    public String getMeasurementType() {
-        return measurementType;
+    public String getType() {
+        return type;
     }
 
-    public void setMeasurementType(String measurementType) {
-        this.measurementType = measurementType;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public float getMeasurementValue() {
-        return measurementValue;
+    public float getValue() {
+        return value;
     }
 
-    public void setMeasurementValue(float measurementValue) {
-        this.measurementValue = measurementValue;
+    public void setValue(float value) {
+        this.value = value;
     }
 
-    public String getMeasurementDate() {
-        return measurementDate;
+    public Date getDate() {
+        return date;
     }
 
-    public void setMeasurementDate(String measurementDate) {
-        this.measurementDate = measurementDate;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
+    // Kiểm tra xem giá trị nhịp tim có bình thường không
+    public boolean isHeartRateNormal() {
+        if (!TYPE_HEART_RATE.equals(type)) {
+            return true;
+        }
+
+        // Nhịp tim bình thường cho người trưởng thành: 60-100 nhịp/phút
+        return value >= 60 && value <= 100;
     }
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    // Lấy thông báo về trạng thái nhịp tim
+    public String getHeartRateStatus() {
+        if (!TYPE_HEART_RATE.equals(type)) {
+            return "";
+        }
+
+        if (value < 60) {
+            return "Nhịp tim thấp (nhịp chậm)";
+        } else if (value <= 100) {
+            return "Nhịp tim bình thường";
+        } else {
+            return "Nhịp tim cao (nhịp nhanh)";
+        }
     }
 }
-

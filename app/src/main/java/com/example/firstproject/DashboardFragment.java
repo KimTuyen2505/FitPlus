@@ -16,8 +16,10 @@ import androidx.cardview.widget.CardView;
 import com.example.firstproject.R;
 import com.example.firstproject.dao.UserDAO;
 import com.example.firstproject.dao.HealthMeasurementDAO;
+import com.example.firstproject.dao.ReminderDAO;
 import com.example.firstproject.models.User;
 import com.example.firstproject.models.HealthMeasurement;
+import com.example.firstproject.models.Reminder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +36,7 @@ public class DashboardFragment extends Fragment {
 
     private UserDAO userDAO;
     private HealthMeasurementDAO healthMeasurementDAO;
+    private ReminderDAO reminderDAO;
 
     private SimpleDateFormat dateFormat;
 
@@ -54,6 +57,7 @@ public class DashboardFragment extends Fragment {
         // Initialize DAOs
         userDAO = new UserDAO(context);
         healthMeasurementDAO = new HealthMeasurementDAO(context);
+        reminderDAO = new ReminderDAO(context);
 
         dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
     }
@@ -63,6 +67,7 @@ public class DashboardFragment extends Fragment {
         super.onResume();
         userDAO.open();
         healthMeasurementDAO.open();
+        reminderDAO.open();
         loadHealthData();
     }
 
@@ -71,6 +76,7 @@ public class DashboardFragment extends Fragment {
         super.onPause();
         userDAO.close();
         healthMeasurementDAO.close();
+        reminderDAO.close();
     }
 
     @Nullable
@@ -115,7 +121,7 @@ public class DashboardFragment extends Fragment {
             textHeight.setText(String.format(Locale.getDefault(), "Chiều cao: %.1f cm", user.getHeight()));
 
             float bmi = user.calculateBMI();
-            String bmiStatus = user.getBMIStatus();
+            String bmiStatus = user.getBMICategory();
             textBMI.setText(String.format(Locale.getDefault(), "BMI: %.1f (%s)", bmi, bmiStatus));
         }
 
@@ -126,20 +132,42 @@ public class DashboardFragment extends Fragment {
         if (latestWeight != null || latestHeight != null) {
             StringBuilder measurementText = new StringBuilder("Lần đo gần nhất:\n");
             if (latestWeight != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                String dateStr = dateFormat.format(latestWeight.getDate());
                 measurementText.append(String.format(Locale.getDefault(),
                         "Cân nặng: %.1f kg (%s)\n",
-                        latestWeight.getMeasurementValue(),
-                        latestWeight.getMeasurementDate()));
+                        latestWeight.getValue(),
+                        dateStr));
             }
             if (latestHeight != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                String dateStr = dateFormat.format(latestHeight.getDate());
                 measurementText.append(String.format(Locale.getDefault(),
                         "Chiều cao: %.1f cm (%s)",
-                        latestHeight.getMeasurementValue(),
-                        latestHeight.getMeasurementDate()));
+                        latestHeight.getValue(),
+                        dateStr));
             }
             textLastMeasurement.setText(measurementText.toString());
         } else {
             textLastMeasurement.setText("Chưa có dữ liệu đo lường");
+        }
+
+        // Load reminders
+        List<Reminder> reminders = reminderDAO.getAllReminders();
+        if (!reminders.isEmpty()) {
+            StringBuilder reminderText = new StringBuilder("Nhắc nhở sắp tới:\n");
+            int count = 0;
+            for (Reminder reminder : reminders) {
+                if (count < 3) { // Show only 3 latest reminders
+                    reminderText.append(String.format("• %s (%s)\n",
+                            reminder.getTitle(),
+                            reminder.getTime()));
+                    count++;
+                }
+            }
+            textNextReminder.setText(reminderText.toString());
+        } else {
+            textNextReminder.setText("Không có nhắc nhở nào");
         }
 
         // Update health tips based on user data
@@ -176,4 +204,5 @@ public class DashboardFragment extends Fragment {
         listener = null;
     }
 }
+
 

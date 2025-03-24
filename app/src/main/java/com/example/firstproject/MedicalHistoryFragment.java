@@ -22,6 +22,7 @@ import com.example.firstproject.dao.MedicalRecordDAO;
 import com.example.firstproject.models.MedicalRecord;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MedicalHistoryFragment extends Fragment {
@@ -82,7 +83,7 @@ public class MedicalHistoryFragment extends Fragment {
 
     private void loadMedicalRecords() {
         medicalRecordList.clear();
-        medicalRecordList.addAll(medicalRecordDAO.getAllRecords());
+        medicalRecordList.addAll(medicalRecordDAO.getAllMedicalRecords());
         adapter.notifyDataSetChanged();
     }
 
@@ -103,13 +104,19 @@ public class MedicalHistoryFragment extends Fragment {
 
         btnSave.setOnClickListener(v -> {
             String title = editTitle.getText().toString();
-            String date = editDate.getText().toString();
             String doctor = editDoctor.getText().toString();
             String notes = editNotes.getText().toString();
+            Date date = new Date();
+            try {
+                date = (Date) editDate.getText();
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Thời gian không hợp lệ", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            if (!title.isEmpty() && !date.isEmpty()) {
-                MedicalRecord record = new MedicalRecord(title, date, doctor, notes);
-                long id = medicalRecordDAO.insertRecord(record);
+            if (!title.isEmpty()) {
+                MedicalRecord record = new MedicalRecord(title, notes, date, doctor);
+                long id = medicalRecordDAO.insertMedicalRecord(record);
                 record.setId(id);
 
                 medicalRecordList.add(0, record);
@@ -183,9 +190,9 @@ public class MedicalHistoryFragment extends Fragment {
 
             public void bind(MedicalRecord record) {
                 textTitle.setText(record.getTitle());
-                textDate.setText(record.getDate());
+                textDate.setText(record.getDate().toString());
                 textDoctor.setText(record.getDoctor());
-                textNotes.setText(record.getNotes());
+                textNotes.setText(record.getDescription());
             }
         }
     }
@@ -195,7 +202,7 @@ public class MedicalHistoryFragment extends Fragment {
                 .setTitle("Xóa hồ sơ y tế")
                 .setMessage("Bạn có chắc muốn xóa hồ sơ này?")
                 .setPositiveButton("Xóa", (dialog, which) -> {
-                    medicalRecordDAO.deleteRecord(record.getId());
+                    medicalRecordDAO.deleteMedicalRecord(record.getId());
                     medicalRecordList.remove(record);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(getContext(), "Đã xóa hồ sơ", Toast.LENGTH_SHORT).show();

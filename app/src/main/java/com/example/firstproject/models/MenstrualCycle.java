@@ -7,9 +7,15 @@ public class MenstrualCycle {
     private Date startDate;
     private Date endDate;
     private String symptoms;
-    private String createdAt;
+    private String notes;
+    private long userId;
 
     public MenstrualCycle() {
+        this.startDate = new Date();
+    }
+
+    public MenstrualCycle(Date startDate) {
+        this.startDate = startDate;
     }
 
     public MenstrualCycle(Date startDate, Date endDate, String symptoms) {
@@ -18,7 +24,6 @@ public class MenstrualCycle {
         this.symptoms = symptoms;
     }
 
-    // Getters and Setters
     public long getId() {
         return id;
     }
@@ -51,19 +56,41 @@ public class MenstrualCycle {
         this.symptoms = symptoms;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
+    public String getNotes() {
+        return notes;
     }
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
-    // Calculate cycle length
-    public int getCycleLength() {
-        if (startDate == null || endDate == null) return 0;
-        long diff = endDate.getTime() - startDate.getTime();
-        return (int) (diff / (24 * 60 * 60 * 1000));
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    // Tính độ dài chu kỳ (tính từ ngày bắt đầu đến ngày bắt đầu chu kỳ tiếp theo)
+    public int calculateCycleLength(Date nextCycleStartDate) {
+        if (startDate == null || nextCycleStartDate == null) {
+            return 0;
+        }
+
+        long diffInMillis = nextCycleStartDate.getTime() - startDate.getTime();
+        return (int) (diffInMillis / (1000 * 60 * 60 * 24));
+    }
+
+    // Tính độ dài chu kỳ kinh nguyệt (từ ngày bắt đầu đến ngày kết thúc)
+    public int calculatePeriodLength() {
+        if (startDate == null || endDate == null) {
+            return 0;
+        }
+
+        long diffInMillis = endDate.getTime() - startDate.getTime();
+        return (int) (diffInMillis / (1000 * 60 * 60 * 24)) + 1; // +1 vì tính cả ngày bắt đầu
     }
 }
+
 

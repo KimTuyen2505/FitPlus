@@ -13,7 +13,35 @@
         android:textColor="@color/accent_blue"
         android:layout_marginBottom="16dp" />
 
+    <RadioGroup
+        android:id="@+id/radio_measurement_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/radio_weight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cân nặng"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio_height"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chiều cao" />
+
+        <RadioButton
+            android:id="@+id/radio_heart_rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nhịp tim" />
+    </RadioGroup>
+
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_weight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp">
@@ -28,9 +56,11 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_height"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/edit_height"
@@ -38,6 +68,22 @@
             android:layout_height="wrap_content"
             android:hint="Chiều cao (cm)"
             android:inputType="numberDecimal" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_heart_rate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/edit_heart_rate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhịp tim (nhịp/phút)"
+            android:inputType="number" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

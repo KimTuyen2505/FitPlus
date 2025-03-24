@@ -7,7 +7,7 @@ public class User {
     private String gender;
     private float height;
     private float weight;
-    private String createdAt;
+    private String bloodType;
 
     public User() {
     }
@@ -20,7 +20,15 @@ public class User {
         this.weight = weight;
     }
 
-    // Getters and Setters
+    public User(String name, int age, String gender, float height, float weight, String bloodType) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.height = height;
+        this.weight = weight;
+        this.bloodType = bloodType;
+    }
+
     public long getId() {
         return id;
     }
@@ -69,27 +77,31 @@ public class User {
         this.weight = weight;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
+    public String getBloodType() {
+        return bloodType;
     }
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    public void setBloodType(String bloodType) {
+        this.bloodType = bloodType;
     }
 
-    // Calculate BMI
+    // Tính BMI
     public float calculateBMI() {
         if (height <= 0) return 0;
-        return weight / ((height/100) * (height/100));
+        return weight / ((height / 100) * (height / 100));
     }
 
-    // Get BMI Status
-    public String getBMIStatus() {
+    // Phân loại BMI
+    public String getBMICategory() {
         float bmi = calculateBMI();
-        if (bmi < 18.5) return "Thiếu cân";
-        if (bmi < 24.9) return "Bình thường";
-        if (bmi < 29.9) return "Thừa cân";
-        return "Béo phì";
+        if (bmi < 18.5) {
+            return "Thiếu cân";
+        } else if (bmi < 25) {
+            return "Bình thường";
+        } else if (bmi < 30) {
+            return "Thừa cân";
+        } else {
+            return "Béo phì";
+        }
     }
 }
-
