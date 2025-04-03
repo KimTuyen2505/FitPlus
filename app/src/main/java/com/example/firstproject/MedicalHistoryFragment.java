@@ -175,6 +175,7 @@ public class MedicalHistoryFragment extends Fragment {
             return new MedicalRecordViewHolder(view);
         }
 
+        
         @Override
         public void onBindViewHolder(@NonNull MedicalRecordViewHolder holder, int position) {
             MedicalRecord record = records.get(position);
