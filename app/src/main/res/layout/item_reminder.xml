@@ -60,7 +60,116 @@
                 android:layout_gravity="center_vertical"
                 android:checked="true" />
 
+
+
+            <ImageView
+                android:id="@+id/icon_delete"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_delete"
+                android:tint="@android:color/holo_red_light"
+                android:contentDescription="Xóa nhắc nhở" />
         </LinearLayout>
+
+        <!-- Content for water reminder -->
+        <LinearLayout
+            android:id="@+id/layout_water_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp">
+
+                <!-- Water bottle background -->
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_water_bottle"
+                    android:alpha="0.1" />
+
+                <!-- Water level progress -->
+                <ProgressBar
+                    android:id="@+id/progress_water"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:progressDrawable="@drawable/water_progress"
+                    android:progress="60" />
+
+                <TextView
+                    android:id="@+id/text_water_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/accent_blue"
+                    android:text="1.2L / 2.0L" />
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btn_add_water"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thêm 330ml nước"
+                android:backgroundTint="@color/accent_blue"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <!-- Content for medicine reminder -->
+        <LinearLayout
+            android:id="@+id/layout_medicine_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/text_medicine_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên thuốc: Paracetamol"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/text_medicine_dosage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Liều lượng: 1 viên"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/text_medicine_instruction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hướng dẫn: Uống sau khi ăn"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btn_take_medicine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Xác nhận đã uống thuốc"
+                android:backgroundTint="@color/accent_blue"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

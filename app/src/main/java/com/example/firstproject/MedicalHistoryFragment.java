@@ -99,6 +99,9 @@ public class MedicalHistoryFragment extends Fragment {
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
+        // Gợi ý định dạng ngày tháng cho người dùng
+        editDate.setHint("Nhập ngày (dd/MM/yyyy)");
+
         final AlertDialog dialog = builder.create();
         dialog.show();
 
@@ -106,12 +109,23 @@ public class MedicalHistoryFragment extends Fragment {
             String title = editTitle.getText().toString();
             String doctor = editDoctor.getText().toString();
             String notes = editNotes.getText().toString();
-            Date date = new Date();
-            try {
-                date = (Date) editDate.getText();
-            } catch (Exception e) {
-                Toast.makeText(getContext(), "Thời gian không hợp lệ", Toast.LENGTH_SHORT).show();
-                return;
+            Date date = new Date(); // Mặc định là ngày hiện tại
+
+            // Xử lý chuỗi ngày tháng
+            String dateStr = editDate.getText().toString();
+            if (!dateStr.isEmpty()) {
+                try {
+                    // Định dạng ngày tháng kiểu Việt Nam: ngày/tháng/năm
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+                    sdf.setLenient(false); // Kiểm tra nghiêm ngặt định dạng ngày
+                    date = sdf.parse(dateStr);
+                    if (date == null) {
+                        date = new Date(); // Sử dụng ngày hiện tại nếu không phân tích được
+                    }
+                } catch (java.text.ParseException e) {
+                    Toast.makeText(getContext(), "Ngày tháng không hợp lệ. Vui lòng nhập theo định dạng ngày/tháng/năm (VD: 31/12/2023)", Toast.LENGTH_LONG).show();
+                    return;
+                }
             }
 
             if (!title.isEmpty()) {
@@ -126,13 +140,14 @@ public class MedicalHistoryFragment extends Fragment {
                 if (listener != null) {
                     listener.onMedicalRecordAdded();
                 }
+
+                Toast.makeText(getContext(), "Đã lưu hồ sơ y tế thành công", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             } else {
                 Toast.makeText(getContext(),
-                        "Vui lòng nhập tiêu đề và ngày",
+                        "Vui lòng nhập tiêu đề cho hồ sơ y tế",
                         Toast.LENGTH_SHORT).show();
             }
-
-            dialog.dismiss();
         });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
@@ -190,9 +205,22 @@ public class MedicalHistoryFragment extends Fragment {
 
             public void bind(MedicalRecord record) {
                 textTitle.setText(record.getTitle());
-                textDate.setText(record.getDate().toString());
+
+                // Chỉ hiển thị ngày tháng năm
+                String formattedDate = formatDateVietnamese(record.getDate());
+                textDate.setText(formattedDate);
+
                 textDoctor.setText(record.getDoctor());
                 textNotes.setText(record.getDescription());
+            }
+
+            // Phương thức định dạng chỉ hiển thị ngày tháng năm
+            private String formatDateVietnamese(Date date) {
+                if (date == null) return "";
+
+                // Định dạng ngày/tháng/năm
+                java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+                return dateFormat.format(date);
             }
         }
     }
