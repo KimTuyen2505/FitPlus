@@ -41,6 +41,7 @@ public class MedicalRecordDAO {
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DESCRIPTION, record.getDescription());
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE, record.getDate().getTime());
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR, record.getDoctor());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_HOSPITAL, record.getHospital());
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_USER_ID, 1); // Mặc định user_id = 1 cho ứng dụng đơn người dùng
 
         return database.insert(DatabaseHelper.TABLE_MEDICAL_RECORD, null, values);
@@ -53,6 +54,7 @@ public class MedicalRecordDAO {
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DESCRIPTION, record.getDescription());
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE, record.getDate().getTime());
         values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR, record.getDoctor());
+        values.put(DatabaseHelper.COLUMN_MEDICAL_RECORD_HOSPITAL, record.getHospital());
 
         return database.update(
                 DatabaseHelper.TABLE_MEDICAL_RECORD,
@@ -79,6 +81,47 @@ public class MedicalRecordDAO {
                 null,
                 null,
                 null,
+                null,
+                null,
+                DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE + " DESC"
+        );
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                MedicalRecord record = cursorToMedicalRecord(cursor);
+                records.add(record);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+
+        return records;
+    }
+
+    // Tìm kiếm hồ sơ y tế theo từ khóa
+    public List<MedicalRecord> searchMedicalRecords(String keyword) {
+        List<MedicalRecord> records = new ArrayList<>();
+
+        // Tạo câu truy vấn tìm kiếm
+        String selection =
+                DatabaseHelper.COLUMN_MEDICAL_RECORD_TITLE + " LIKE ? OR " +
+                        DatabaseHelper.COLUMN_MEDICAL_RECORD_DESCRIPTION + " LIKE ? OR " +
+                        DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR + " LIKE ? OR " +
+                        DatabaseHelper.COLUMN_MEDICAL_RECORD_HOSPITAL + " LIKE ?";
+
+        String[] selectionArgs = new String[] {
+                "%" + keyword + "%",
+                "%" + keyword + "%",
+                "%" + keyword + "%",
+                "%" + keyword + "%"
+        };
+
+        Cursor cursor = database.query(
+                DatabaseHelper.TABLE_MEDICAL_RECORD,
+                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 DatabaseHelper.COLUMN_MEDICAL_RECORD_DATE + " DESC"
@@ -129,6 +172,7 @@ public class MedicalRecordDAO {
         record.setDate(new Date(dateMillis));
 
         record.setDoctor(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_DOCTOR)));
+        record.setHospital(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_MEDICAL_RECORD_HOSPITAL)));
 
         return record;
     }

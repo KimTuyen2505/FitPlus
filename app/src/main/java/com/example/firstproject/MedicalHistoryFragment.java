@@ -1,13 +1,18 @@
 package com.example.firstproject;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,22 +22,30 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.firstproject.R;
 import com.example.firstproject.dao.MedicalRecordDAO;
 import com.example.firstproject.models.MedicalRecord;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MedicalHistoryFragment extends Fragment {
 
     private MedicalHistoryListener listener;
     private RecyclerView recyclerMedicalHistory;
     private Button btnAddMedicalRecord;
+    private EditText editSearch;
+    private ImageButton btnClearSearch;
+    private TextView textSearchResults;
     private List<MedicalRecord> medicalRecordList;
+    private List<MedicalRecord> filteredRecordList;
     private MedicalRecordAdapter adapter;
     private MedicalRecordDAO medicalRecordDAO;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     public interface MedicalHistoryListener {
         void onMedicalRecordAdded();
@@ -69,22 +82,86 @@ public class MedicalHistoryFragment extends Fragment {
 
         recyclerMedicalHistory = view.findViewById(R.id.recycler_medical_history);
         btnAddMedicalRecord = view.findViewById(R.id.btn_add_medical_record);
+        editSearch = view.findViewById(R.id.edit_search);
+        btnClearSearch = view.findViewById(R.id.btn_clear_search);
+        textSearchResults = view.findViewById(R.id.text_search_results);
 
         recyclerMedicalHistory.setLayoutManager(new LinearLayoutManager(getContext()));
 
         medicalRecordList = new ArrayList<>();
-        adapter = new MedicalRecordAdapter(medicalRecordList);
+        filteredRecordList = new ArrayList<>();
+        adapter = new MedicalRecordAdapter(filteredRecordList);
         recyclerMedicalHistory.setAdapter(adapter);
 
         btnAddMedicalRecord.setOnClickListener(v -> showAddMedicalRecordDialog());
 
+        // Thiết lập chức năng tìm kiếm
+        setupSearch();
+
         return view;
+    }
+
+    private void setupSearch() {
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String keyword = s.toString().trim().toLowerCase();
+                filterRecords(keyword);
+
+                // Hiển thị hoặc ẩn nút xóa tìm kiếm
+                if (keyword.isEmpty()) {
+                    btnClearSearch.setVisibility(View.GONE);
+                    textSearchResults.setVisibility(View.GONE);
+                } else {
+                    btnClearSearch.setVisibility(View.VISIBLE);
+                    textSearchResults.setVisibility(View.VISIBLE);
+                    textSearchResults.setText("Tìm thấy " + filteredRecordList.size() + " kết quả cho '" + keyword + "'");
+                }
+            }
+        });
+
+        btnClearSearch.setOnClickListener(v -> {
+            editSearch.setText("");
+            btnClearSearch.setVisibility(View.GONE);
+            textSearchResults.setVisibility(View.GONE);
+        });
+    }
+
+    private void filterRecords(String keyword) {
+        filteredRecordList.clear();
+
+        if (keyword.isEmpty()) {
+            filteredRecordList.addAll(medicalRecordList);
+        } else {
+            for (MedicalRecord record : medicalRecordList) {
+                // Tìm kiếm trong tiêu đề, mô tả, bác sĩ và bệnh viện
+                if (record.getTitle().toLowerCase().contains(keyword) ||
+                        (record.getDescription() != null && record.getDescription().toLowerCase().contains(keyword)) ||
+                        (record.getDoctor() != null && record.getDoctor().toLowerCase().contains(keyword)) ||
+                        (record.getHospital() != null && record.getHospital().toLowerCase().contains(keyword))) {
+                    filteredRecordList.add(record);
+                }
+            }
+        }
+
+        adapter.notifyDataSetChanged();
     }
 
     private void loadMedicalRecords() {
         medicalRecordList.clear();
         medicalRecordList.addAll(medicalRecordDAO.getAllMedicalRecords());
-        adapter.notifyDataSetChanged();
+
+        // Cập nhật danh sách đã lọc
+        String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
+        filterRecords(currentKeyword);
     }
 
     private void showAddMedicalRecordDialog() {
@@ -99,53 +176,63 @@ public class MedicalHistoryFragment extends Fragment {
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
-        // Gợi ý định dạng ngày tháng cho người dùng
-        editDate.setHint("Nhập ngày (dd/MM/yyyy)");
+        // Thiết lập DatePicker khi nhấp vào trường ngày
+        editDate.setOnClickListener(v -> {
+            final Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, selectedYear, selectedMonth, selectedDay) -> {
+                        calendar.set(selectedYear, selectedMonth, selectedDay);
+                        editDate.setText(dateFormat.format(calendar.getTime()));
+                    }, year, month, day);
+            datePickerDialog.show();
+        });
+
+        // Đặt ngày hiện tại làm mặc định
+        editDate.setText(dateFormat.format(new Date()));
 
         final AlertDialog dialog = builder.create();
         dialog.show();
 
         btnSave.setOnClickListener(v -> {
             String title = editTitle.getText().toString();
+            String dateStr = editDate.getText().toString();
             String doctor = editDoctor.getText().toString();
             String notes = editNotes.getText().toString();
-            Date date = new Date(); // Mặc định là ngày hiện tại
 
-            // Xử lý chuỗi ngày tháng
-            String dateStr = editDate.getText().toString();
-            if (!dateStr.isEmpty()) {
-                try {
-                    // Định dạng ngày tháng kiểu Việt Nam: ngày/tháng/năm
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
-                    sdf.setLenient(false); // Kiểm tra nghiêm ngặt định dạng ngày
-                    date = sdf.parse(dateStr);
-                    if (date == null) {
-                        date = new Date(); // Sử dụng ngày hiện tại nếu không phân tích được
-                    }
-                } catch (java.text.ParseException e) {
-                    Toast.makeText(getContext(), "Ngày tháng không hợp lệ. Vui lòng nhập theo định dạng ngày/tháng/năm (VD: 31/12/2023)", Toast.LENGTH_LONG).show();
-                    return;
-                }
+            Date date = null;
+            try {
+                date = dateFormat.parse(dateStr);
+            } catch (ParseException e) {
+                Toast.makeText(getContext(), "Thời gian không hợp lệ. Vui lòng sử dụng định dạng DD/MM/YYYY", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            if (!title.isEmpty()) {
-                MedicalRecord record = new MedicalRecord(title, notes, date, doctor);
+            if (!title.isEmpty() && date != null) {
+                MedicalRecord record = new MedicalRecord(title, notes, date, doctor, "");
                 long id = medicalRecordDAO.insertMedicalRecord(record);
                 record.setId(id);
 
                 medicalRecordList.add(0, record);
-                adapter.notifyItemInserted(0);
+
+                // Cập nhật danh sách đã lọc
+                String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
+                filterRecords(currentKeyword);
+
                 recyclerMedicalHistory.scrollToPosition(0);
 
                 if (listener != null) {
                     listener.onMedicalRecordAdded();
                 }
 
-                Toast.makeText(getContext(), "Đã lưu hồ sơ y tế thành công", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Đã thêm hồ sơ y tế", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             } else {
                 Toast.makeText(getContext(),
-                        "Vui lòng nhập tiêu đề cho hồ sơ y tế",
+                        "Vui lòng nhập tiêu đề và ngày",
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -175,7 +262,6 @@ public class MedicalHistoryFragment extends Fragment {
             return new MedicalRecordViewHolder(view);
         }
 
-        
         @Override
         public void onBindViewHolder(@NonNull MedicalRecordViewHolder holder, int position) {
             MedicalRecord record = records.get(position);
@@ -206,22 +292,9 @@ public class MedicalHistoryFragment extends Fragment {
 
             public void bind(MedicalRecord record) {
                 textTitle.setText(record.getTitle());
-
-                // Chỉ hiển thị ngày tháng năm
-                String formattedDate = formatDateVietnamese(record.getDate());
-                textDate.setText(formattedDate);
-
+                textDate.setText(dateFormat.format(record.getDate()));
                 textDoctor.setText(record.getDoctor());
                 textNotes.setText(record.getDescription());
-            }
-
-            // Phương thức định dạng chỉ hiển thị ngày tháng năm
-            private String formatDateVietnamese(Date date) {
-                if (date == null) return "";
-
-                // Định dạng ngày/tháng/năm
-                java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
-                return dateFormat.format(date);
             }
         }
     }
@@ -233,11 +306,14 @@ public class MedicalHistoryFragment extends Fragment {
                 .setPositiveButton("Xóa", (dialog, which) -> {
                     medicalRecordDAO.deleteMedicalRecord(record.getId());
                     medicalRecordList.remove(record);
-                    adapter.notifyDataSetChanged();
+
+                    // Cập nhật danh sách đã lọc
+                    String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
+                    filterRecords(currentKeyword);
+
                     Toast.makeText(getContext(), "Đã xóa hồ sơ", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 }
-

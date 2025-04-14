@@ -8,17 +8,19 @@ public class MedicalRecord {
     private String description;
     private Date date;
     private String doctor;
+    private String hospital;
     private long userId;
 
     public MedicalRecord() {
         this.date = new Date();
     }
 
-    public MedicalRecord(String title, String description, Date date, String doctor) {
+    public MedicalRecord(String title, String description, Date date, String doctor, String hospital) {
         this.title = title;
         this.description = description;
         this.date = date;
         this.doctor = doctor;
+        this.hospital = hospital;
     }
 
     public long getId() {
@@ -61,6 +63,14 @@ public class MedicalRecord {
         this.doctor = doctor;
     }
 
+    public String getHospital() {
+        return hospital;
+    }
+
+    public void setHospital(String hospital) {
+        this.hospital = hospital;
+    }
+
     public long getUserId() {
         return userId;
     }
@@ -69,5 +79,3 @@ public class MedicalRecord {
         this.userId = userId;
     }
 }
-
-

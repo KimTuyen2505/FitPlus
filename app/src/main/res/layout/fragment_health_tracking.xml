@@ -14,14 +14,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Theo dõi sức khỏe"
-            android:textSize="24sp"
-            android:textColor="@color/accent_blue"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="Theo dõi cân nặng"
             android:textSize="18sp"
             android:textColor="@color/text_primary"

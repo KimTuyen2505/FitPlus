@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/text_suggestion_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tiêu đề lời khuyên"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/text_suggestion_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nội dung lời khuyên sẽ được hiển thị ở đây. Đây là phần mô tả chi tiết về lời khuyên sức khỏe."
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/text_suggestion_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nguồn: Bộ Y tế"
+            android:textSize="12sp"
+            android:textColor="@color/text_tertiary"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

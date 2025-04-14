@@ -1,5 +1,7 @@
 package com.example.firstproject.models;
 
+import java.util.Date;
+
 public class User {
     private long id;
     private String name;
@@ -8,6 +10,19 @@ public class User {
     private float height;
     private float weight;
     private String bloodType;
+    private Date birthdate;
+    private int heartRate;
+    private String doctorName;
+    private String doctorPhone;
+    private String medications;
+    private String profileImageUri;
+
+    // Thêm các trường mới
+    private String address;
+    private String emergencyContact;
+    private String medicalHistory;
+    private String allergies;
+    private String insuranceNumber;
 
     public User() {
     }
@@ -18,15 +33,6 @@ public class User {
         this.gender = gender;
         this.height = height;
         this.weight = weight;
-    }
-
-    public User(String name, int age, String gender, float height, float weight, String bloodType) {
-        this.name = name;
-        this.age = age;
-        this.gender = gender;
-        this.height = height;
-        this.weight = weight;
-        this.bloodType = bloodType;
     }
 
     public long getId() {
@@ -85,6 +91,95 @@ public class User {
         this.bloodType = bloodType;
     }
 
+    public Date getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public int getHeartRate() {
+        return heartRate;
+    }
+
+    public void setHeartRate(int heartRate) {
+        this.heartRate = heartRate;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
+    }
+
+    public String getDoctorPhone() {
+        return doctorPhone;
+    }
+
+    public void setDoctorPhone(String doctorPhone) {
+        this.doctorPhone = doctorPhone;
+    }
+
+    public String getMedications() {
+        return medications;
+    }
+
+    public void setMedications(String medications) {
+        this.medications = medications;
+    }
+
+    public String getProfileImageUri() {
+        return profileImageUri;
+    }
+
+    public void setProfileImageUri(String profileImageUri) {
+        this.profileImageUri = profileImageUri;
+    }
+
+    // Getter và setter cho các trường mới
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getEmergencyContact() {
+        return emergencyContact;
+    }
+
+    public void setEmergencyContact(String emergencyContact) {
+        this.emergencyContact = emergencyContact;
+    }
+
+    public String getMedicalHistory() {
+        return medicalHistory;
+    }
+
+    public void setMedicalHistory(String medicalHistory) {
+        this.medicalHistory = medicalHistory;
+    }
+
+    public String getAllergies() {
+        return allergies;
+    }
+
+    public void setAllergies(String allergies) {
+        this.allergies = allergies;
+    }
+
+    public String getInsuranceNumber() {
+        return insuranceNumber;
+    }
+
+    public void setInsuranceNumber(String insuranceNumber) {
+        this.insuranceNumber = insuranceNumber;
+    }
+
     // Tính BMI
     public float calculateBMI() {
         if (height <= 0) return 0;
@@ -103,5 +198,17 @@ public class User {
         } else {
             return "Béo phì";
         }
+    }
+
+    // Tính tuổi từ ngày sinh
+    public int calculateAge() {
+        if (birthdate == null) {
+            return age;
+        }
+
+        Date now = new Date();
+        long timeDiff = now.getTime() - birthdate.getTime();
+        double yearsDiff = timeDiff / (1000.0 * 60 * 60 * 24 * 365.25);
+        return (int) yearsDiff;
     }
 }

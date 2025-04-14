@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements
         HealthTrackingFragment.HealthTrackingListener,
         RemindersFragment.RemindersListener,
         MedicalHistoryFragment.MedicalHistoryListener,
-        HealthSuggestionsFragment.HealthSuggestionsListener,
         AnalysisAlertsFragment.AnalysisAlertsListener,
         MenstrualCycleFragment.MenstrualCycleListener {
 
@@ -168,11 +167,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onSuggestionSelected(String suggestionId) {
-        Toast.makeText(this, "Đã chọn lời khuyên: " + suggestionId, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
     public void onAlertDismissed(String alertId) {
         Toast.makeText(this, "Đã bỏ qua cảnh báo: " + alertId, Toast.LENGTH_SHORT).show();
     }
@@ -181,39 +175,5 @@ public class MainActivity extends AppCompatActivity implements
     public void onPeriodLogged(Date date) {
         Toast.makeText(this, "Đã ghi nhận chu kỳ thành công", Toast.LENGTH_SHORT).show();
     }
-
-    private void scheduleNotification(Context context, int hour, int minute, long repeatInterval, String title, String message) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.putExtra("title", title);
-        intent.putExtra("message", message);
-
-        int requestCode = (int) System.currentTimeMillis();
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
-        );
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-
-        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-        if (alarmManager != null) {
-            alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(),
-                    repeatInterval,
-                    pendingIntent
-            );
-        }
-    }
-
 }
 

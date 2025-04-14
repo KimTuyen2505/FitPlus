@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "health_management.db";
-    private static final int DATABASE_VERSION = 2; // Tăng version để trigger onUpgrade
+    private static final int DATABASE_VERSION = 1;
 
     // Bảng User
     public static final String TABLE_USER = "user";
@@ -17,6 +17,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USER_HEIGHT = "height";
     public static final String COLUMN_USER_WEIGHT = "weight";
     public static final String COLUMN_USER_BLOOD_TYPE = "blood_type";
+    public static final String COLUMN_USER_BIRTHDATE = "birthdate";
+    public static final String COLUMN_USER_HEART_RATE = "heart_rate";
+    public static final String COLUMN_USER_DOCTOR_NAME = "doctor_name";
+    public static final String COLUMN_USER_DOCTOR_PHONE = "doctor_phone";
+    public static final String COLUMN_USER_MEDICATIONS = "medications";
+    public static final String COLUMN_USER_PROFILE_IMAGE = "profile_image";
+    // Thêm các cột mới
+    public static final String COLUMN_USER_ADDRESS = "address";
+    public static final String COLUMN_USER_EMERGENCY_CONTACT = "emergency_contact";
+    public static final String COLUMN_USER_MEDICAL_HISTORY = "medical_history";
+    public static final String COLUMN_USER_ALLERGIES = "allergies";
+    public static final String COLUMN_USER_INSURANCE = "insurance";
+
+    // Bảng Account
+    public static final String TABLE_ACCOUNT = "account";
+    public static final String COLUMN_ACCOUNT_ID = "id";
+    public static final String COLUMN_ACCOUNT_EMAIL = "email";
+    public static final String COLUMN_ACCOUNT_PASSWORD = "password";
+    public static final String COLUMN_ACCOUNT_USER_ID = "user_id";
 
     // Bảng HealthMeasurement
     public static final String TABLE_HEALTH_MEASUREMENT = "health_measurement";
@@ -32,8 +51,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_REMINDER_TITLE = "title";
     public static final String COLUMN_REMINDER_TIME = "time";
     public static final String COLUMN_REMINDER_FREQUENCY = "frequency";
+    public static final String COLUMN_REMINDER_TYPE = "type";
+    public static final String COLUMN_REMINDER_PROGRESS = "progress";
+    public static final String COLUMN_REMINDER_TARGET = "target";
+    public static final String COLUMN_REMINDER_CURRENT = "current";
     public static final String COLUMN_REMINDER_USER_ID = "user_id";
-    public static final String COLUMN_REMINDER_IS_ACTIVE = "is_active"; // Thêm cột mới
+    public static final String COLUMN_REMINDER_IS_ACTIVE = "is_active";
 
     // Bảng MedicalRecord
     public static final String TABLE_MEDICAL_RECORD = "medical_record";
@@ -42,6 +65,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MEDICAL_RECORD_DESCRIPTION = "description";
     public static final String COLUMN_MEDICAL_RECORD_DATE = "date";
     public static final String COLUMN_MEDICAL_RECORD_DOCTOR = "doctor";
+    public static final String COLUMN_MEDICAL_RECORD_HOSPITAL = "hospital";
     public static final String COLUMN_MEDICAL_RECORD_USER_ID = "user_id";
 
     // Bảng MenstrualCycle
@@ -53,13 +77,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MENSTRUAL_CYCLE_NOTES = "notes";
     public static final String COLUMN_MENSTRUAL_CYCLE_USER_ID = "user_id";
 
+    // Bảng HealthSuggestionCategory (mới)
+    public static final String TABLE_HEALTH_SUGGESTION_CATEGORY = "health_suggestion_category";
+    public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_ID = "id";
+    public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_NAME = "name";
+    public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_ICON = "icon";
+    public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_DESCRIPTION = "description";
+    public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_COLOR = "color";
+
+    // Bảng HealthSuggestion (mới)
+    public static final String TABLE_HEALTH_SUGGESTION = "health_suggestion";
+    public static final String COLUMN_HEALTH_SUGGESTION_ID = "id";
+    public static final String COLUMN_HEALTH_SUGGESTION_TITLE = "title";
+    public static final String COLUMN_HEALTH_SUGGESTION_CONTENT = "content";
+    public static final String COLUMN_HEALTH_SUGGESTION_SOURCE = "source";
+    public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_FK = "category_id"; // Đổi tên để tránh trùng lặp
+
+    // Thêm phương thức getInstance để đảm bảo chỉ có một instance của DatabaseHelper
+    private static DatabaseHelper instance;
+
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new DatabaseHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
+    // Sửa constructor thành private để thực hiện Singleton pattern
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Tạo bảng User
+        // Tạo bảng User với các trường mới
         String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
                 + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_USER_NAME + " TEXT,"
@@ -67,9 +118,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_USER_GENDER + " TEXT,"
                 + COLUMN_USER_HEIGHT + " REAL,"
                 + COLUMN_USER_WEIGHT + " REAL,"
-                + COLUMN_USER_BLOOD_TYPE + " TEXT"
+                + COLUMN_USER_BLOOD_TYPE + " TEXT,"
+                + COLUMN_USER_BIRTHDATE + " INTEGER,"
+                + COLUMN_USER_HEART_RATE + " INTEGER,"
+                + COLUMN_USER_DOCTOR_NAME + " TEXT,"
+                + COLUMN_USER_DOCTOR_PHONE + " TEXT,"
+                + COLUMN_USER_MEDICATIONS + " TEXT,"
+                + COLUMN_USER_PROFILE_IMAGE + " TEXT,"
+                + COLUMN_USER_ADDRESS + " TEXT,"
+                + COLUMN_USER_EMERGENCY_CONTACT + " TEXT,"
+                + COLUMN_USER_MEDICAL_HISTORY + " TEXT,"
+                + COLUMN_USER_ALLERGIES + " TEXT,"
+                + COLUMN_USER_INSURANCE + " TEXT"
                 + ")";
         db.execSQL(CREATE_USER_TABLE);
+
+        // Tạo bảng Account
+        String CREATE_ACCOUNT_TABLE = "CREATE TABLE " + TABLE_ACCOUNT + "("
+                + COLUMN_ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_ACCOUNT_EMAIL + " TEXT UNIQUE,"
+                + COLUMN_ACCOUNT_PASSWORD + " TEXT,"
+                + COLUMN_ACCOUNT_USER_ID + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_ACCOUNT_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                + ")";
+        db.execSQL(CREATE_ACCOUNT_TABLE);
 
         // Tạo bảng HealthMeasurement
         String CREATE_HEALTH_MEASUREMENT_TABLE = "CREATE TABLE " + TABLE_HEALTH_MEASUREMENT + "("
@@ -88,6 +160,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_REMINDER_TITLE + " TEXT,"
                 + COLUMN_REMINDER_TIME + " TEXT,"
                 + COLUMN_REMINDER_FREQUENCY + " TEXT,"
+                + COLUMN_REMINDER_TYPE + " TEXT,"
+                + COLUMN_REMINDER_PROGRESS + " REAL,"
+                + COLUMN_REMINDER_TARGET + " REAL,"
+                + COLUMN_REMINDER_CURRENT + " REAL,"
                 + COLUMN_REMINDER_IS_ACTIVE + " INTEGER DEFAULT 1," // Mặc định là active (1)
                 + COLUMN_REMINDER_USER_ID + " INTEGER,"
                 + "FOREIGN KEY(" + COLUMN_REMINDER_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
@@ -101,6 +177,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_MEDICAL_RECORD_DESCRIPTION + " TEXT,"
                 + COLUMN_MEDICAL_RECORD_DATE + " INTEGER,"
                 + COLUMN_MEDICAL_RECORD_DOCTOR + " TEXT,"
+                + COLUMN_MEDICAL_RECORD_HOSPITAL + " TEXT,"
                 + COLUMN_MEDICAL_RECORD_USER_ID + " INTEGER,"
                 + "FOREIGN KEY(" + COLUMN_MEDICAL_RECORD_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
                 + ")";
@@ -117,30 +194,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + COLUMN_MENSTRUAL_CYCLE_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
                 + ")";
         db.execSQL(CREATE_MENSTRUAL_CYCLE_TABLE);
-    }
 
-    // Instance duy nhất của DatabaseHelper (Singleton pattern)
-    private static DatabaseHelper instance;
+        // Tạo bảng HealthSuggestionCategory (mới)
+        String CREATE_HEALTH_SUGGESTION_CATEGORY_TABLE = "CREATE TABLE " + TABLE_HEALTH_SUGGESTION_CATEGORY + "("
+                + COLUMN_HEALTH_SUGGESTION_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_HEALTH_SUGGESTION_CATEGORY_NAME + " TEXT,"
+                + COLUMN_HEALTH_SUGGESTION_CATEGORY_ICON + " TEXT,"
+                + COLUMN_HEALTH_SUGGESTION_CATEGORY_DESCRIPTION + " TEXT,"
+                + COLUMN_HEALTH_SUGGESTION_CATEGORY_COLOR + " INTEGER"
+                + ")";
+        db.execSQL(CREATE_HEALTH_SUGGESTION_CATEGORY_TABLE);
 
-    // Phương thức để lấy instance duy nhất
-    public static synchronized DatabaseHelper getInstance(Context context) {
-        if (instance == null) {
-            instance = new DatabaseHelper(context.getApplicationContext());
-        }
-        return instance;
+        // Tạo bảng HealthSuggestion (mới)
+        String CREATE_HEALTH_SUGGESTION_TABLE = "CREATE TABLE " + TABLE_HEALTH_SUGGESTION + "("
+                + COLUMN_HEALTH_SUGGESTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_HEALTH_SUGGESTION_TITLE + " TEXT,"
+                + COLUMN_HEALTH_SUGGESTION_CONTENT + " TEXT,"
+                + COLUMN_HEALTH_SUGGESTION_SOURCE + " TEXT,"
+                + COLUMN_HEALTH_SUGGESTION_CATEGORY_FK + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_HEALTH_SUGGESTION_CATEGORY_FK + ") REFERENCES "
+                + TABLE_HEALTH_SUGGESTION_CATEGORY + "(" + COLUMN_HEALTH_SUGGESTION_CATEGORY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_HEALTH_SUGGESTION_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMINDER);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_HEALTH_MEASUREMENT);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEDICAL_RECORD);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MENSTRUAL_CYCLE);
 
-        // Create tables again
-        onCreate(db);
     }
 }
-
