@@ -26,8 +26,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+
 public class DashboardFragment extends Fragment {
 
+    public interface DashboardListener {
+        void onAddMeasurementClicked();
+        void onViewRemindersClicked();
+    }
     private DashboardListener listener;
     private TextView textWeight, textHeight, textBMI, textHealthTip;
     private TextView textLastMeasurement, textNextReminder;
@@ -38,12 +43,7 @@ public class DashboardFragment extends Fragment {
     private HealthMeasurementDAO healthMeasurementDAO;
     private ReminderDAO reminderDAO;
 
-    private SimpleDateFormat dateFormat;
-
-    public interface DashboardListener {
-        void onAddMeasurementClicked();
-        void onViewRemindersClicked();
-    }
+    private SimpleDateFormat dateFormat;         // Định dạng ngày giờ
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -54,7 +54,6 @@ public class DashboardFragment extends Fragment {
             throw new RuntimeException(context.toString() + " must implement DashboardListener");
         }
 
-        // Initialize DAOs
         userDAO = new UserDAO(context);
         healthMeasurementDAO = new HealthMeasurementDAO(context);
         reminderDAO = new ReminderDAO(context);
@@ -81,10 +80,11 @@ public class DashboardFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        // Initialize views
         textWeight = view.findViewById(R.id.text_weight);
         textHeight = view.findViewById(R.id.text_height);
         textBMI = view.findViewById(R.id.text_bmi);
@@ -97,7 +97,6 @@ public class DashboardFragment extends Fragment {
         cardReminders = view.findViewById(R.id.card_reminders);
         cardTips = view.findViewById(R.id.card_tips);
 
-        // Set click listeners
         btnAddMeasurement.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onAddMeasurementClicked();
@@ -113,52 +112,51 @@ public class DashboardFragment extends Fragment {
         return view;
     }
 
+
     private void loadHealthData() {
-        // Load user data
         User user = userDAO.getCurrentUser();
         if (user != null) {
-            textWeight.setText(String.format(Locale.getDefault(), "Cân nặng: %.1f kg", user.getWeight()));
-            textHeight.setText(String.format(Locale.getDefault(), "Chiều cao: %.1f cm", user.getHeight()));
+            textWeight.setText(String.format(Locale.getDefault(),
+                    "Cân nặng: %.1f kg", user.getWeight()));
+            textHeight.setText(String.format(Locale.getDefault(),
+                    "Chiều cao: %.1f cm", user.getHeight()));
 
             float bmi = user.calculateBMI();
             String bmiStatus = user.getBMICategory();
-            textBMI.setText(String.format(Locale.getDefault(), "BMI: %.1f (%s)", bmi, bmiStatus));
+            textBMI.setText(String.format(Locale.getDefault(),
+                    "BMI: %.1f (%s)", bmi, bmiStatus));
         }
 
-        // Load latest measurements
-        HealthMeasurement latestWeight = healthMeasurementDAO.getLatestMeasurementByType("weight");
-        HealthMeasurement latestHeight = healthMeasurementDAO.getLatestMeasurementByType("height");
+        HealthMeasurement latestWeight =
+                healthMeasurementDAO.getLatestMeasurementByType("weight");
+        HealthMeasurement latestHeight =
+                healthMeasurementDAO.getLatestMeasurementByType("height");
 
         if (latestWeight != null || latestHeight != null) {
             StringBuilder measurementText = new StringBuilder("Lần đo gần nhất:\n");
             if (latestWeight != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 String dateStr = dateFormat.format(latestWeight.getDate());
                 measurementText.append(String.format(Locale.getDefault(),
                         "Cân nặng: %.1f kg (%s)\n",
-                        latestWeight.getValue(),
-                        dateStr));
+                        latestWeight.getValue(), dateStr));
             }
             if (latestHeight != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                 String dateStr = dateFormat.format(latestHeight.getDate());
                 measurementText.append(String.format(Locale.getDefault(),
                         "Chiều cao: %.1f cm (%s)",
-                        latestHeight.getValue(),
-                        dateStr));
+                        latestHeight.getValue(), dateStr));
             }
             textLastMeasurement.setText(measurementText.toString());
         } else {
             textLastMeasurement.setText("Chưa có dữ liệu đo lường");
         }
 
-        // Load reminders
         List<Reminder> reminders = reminderDAO.getAllReminders();
         if (!reminders.isEmpty()) {
             StringBuilder reminderText = new StringBuilder("Nhắc nhở sắp tới:\n");
             int count = 0;
             for (Reminder reminder : reminders) {
-                if (count < 3) { // Show only 3 latest reminders
+                if (count < 3) {
                     reminderText.append(String.format("• %s (%s)\n",
                             reminder.getTitle(),
                             reminder.getTime()));
@@ -170,9 +168,9 @@ public class DashboardFragment extends Fragment {
             textNextReminder.setText("Không có nhắc nhở nào");
         }
 
-        // Update health tips based on user data
         updateHealthTips(user);
     }
+
 
     private void updateHealthTips(User user) {
         StringBuilder tips = new StringBuilder();
@@ -180,14 +178,12 @@ public class DashboardFragment extends Fragment {
         if (user != null) {
             float bmi = user.calculateBMI();
 
-            // BMI-based tips
             if (bmi < 18.5) {
                 tips.append("• Bạn đang thiếu cân. Hãy tăng cường dinh dưỡng và tham khảo ý kiến bác sĩ.\n");
             } else if (bmi > 25) {
                 tips.append("• Bạn đang thừa cân. Hãy tập thể dục đều đặn và điều chỉnh chế độ ăn.\n");
             }
 
-            // General health tips
             tips.append("• Uống đủ 2L nước mỗi ngày\n");
             tips.append("• Tập thể dục ít nhất 30 phút/ngày\n");
             tips.append("• Đảm bảo ngủ đủ 7-8 tiếng mỗi ngày");
@@ -204,5 +200,3 @@ public class DashboardFragment extends Fragment {
         listener = null;
     }
 }
-
-
