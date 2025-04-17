@@ -140,22 +140,18 @@ public class HealthTrackingFragment extends Fragment {
     }
 
     private void loadChartData() {
-        // Tải dữ liệu cân nặng
         List<HealthMeasurement> weightMeasurements =
                 healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_WEIGHT);
         updateWeightChart(weightMeasurements);
 
-        // Tải dữ liệu chiều cao
         List<HealthMeasurement> heightMeasurements =
                 healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_HEIGHT);
         updateHeightChart(heightMeasurements);
 
-        // Tải dữ liệu nhịp tim
         List<HealthMeasurement> heartRateMeasurements =
                 healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_HEART_RATE);
         updateHeartRateChart(heartRateMeasurements);
 
-        // Hiển thị trạng thái nhịp tim gần nhất
         HealthMeasurement latestHeartRate =
                 healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_HEART_RATE);
 
@@ -170,7 +166,6 @@ public class HealthTrackingFragment extends Fragment {
                     latestHeartRate.getHeartRateStatus()
             ));
 
-            // Đặt màu cho trạng thái nhịp tim
             if (latestHeartRate.isHeartRateNormal()) {
                 textHeartRateStatus.setTextColor(getResources().getColor(R.color.accent_blue));
             } else {
@@ -189,7 +184,6 @@ public class HealthTrackingFragment extends Fragment {
             return;
         }
 
-        // Sắp xếp theo thời gian
         Collections.sort(measurements, (m1, m2) -> m1.getDate().compareTo(m2.getDate()));
 
         ArrayList<Entry> entries = new ArrayList<>();
@@ -208,7 +202,6 @@ public class HealthTrackingFragment extends Fragment {
         LineData lineData = new LineData(dataSet);
         chartWeight.setData(lineData);
 
-        // Cập nhật labels trục X
         XAxis xAxis = chartWeight.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xLabels));
 
@@ -222,7 +215,6 @@ public class HealthTrackingFragment extends Fragment {
             return;
         }
 
-        // Sắp xếp theo thời gian
         Collections.sort(measurements, (m1, m2) -> m1.getDate().compareTo(m2.getDate()));
 
         ArrayList<Entry> entries = new ArrayList<>();
@@ -241,7 +233,6 @@ public class HealthTrackingFragment extends Fragment {
         LineData lineData = new LineData(dataSet);
         chartHeight.setData(lineData);
 
-        // Cập nhật labels trục X
         XAxis xAxis = chartHeight.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xLabels));
 
@@ -254,8 +245,6 @@ public class HealthTrackingFragment extends Fragment {
             chartHeartRate.invalidate();
             return;
         }
-
-        // Sắp xếp theo thời gian
         Collections.sort(measurements, (m1, m2) -> m1.getDate().compareTo(m2.getDate()));
 
         ArrayList<Entry> entries = new ArrayList<>();
@@ -274,7 +263,6 @@ public class HealthTrackingFragment extends Fragment {
         LineData lineData = new LineData(dataSet);
         chartHeartRate.setData(lineData);
 
-        // Cập nhật labels trục X
         XAxis xAxis = chartHeartRate.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xLabels));
 
@@ -314,7 +302,6 @@ public class HealthTrackingFragment extends Fragment {
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
-        // Xử lý sự kiện thay đổi loại đo lường
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -332,7 +319,6 @@ public class HealthTrackingFragment extends Fragment {
             }
         });
 
-        // Hiển thị trường nhập cân nặng mặc định
         radioGroup.check(R.id.radio_weight);
 
         final AlertDialog dialog = builder.create();
@@ -373,10 +359,8 @@ public class HealthTrackingFragment extends Fragment {
                     }
                 }
 
-                // Cập nhật biểu đồ
                 loadChartData();
 
-                // Thông báo cho listener
                 if (listener != null) {
                     listener.onMeasurementAdded();
                 }
@@ -393,14 +377,12 @@ public class HealthTrackingFragment extends Fragment {
         });
     }
 
-    // Formatter cho trục X để hiển thị ngày tháng
     private class DateAxisValueFormatter extends ValueFormatter {
         private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM", Locale.getDefault());
 
         @Override
         public String getFormattedValue(float value) {
-            // Trong trường hợp này, value là index của điểm dữ liệu
-            // Chúng ta sẽ trả về chuỗi rỗng vì đã sử dụng IndexAxisValueFormatter
+
             return "";
         }
     }

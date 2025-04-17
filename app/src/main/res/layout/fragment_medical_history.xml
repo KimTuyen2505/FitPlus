@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="8dp">
 
         <EditText
             android:id="@+id/edit_search"
@@ -35,6 +35,113 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Xóa tìm kiếm"
             android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Nút hiển thị/ẩn bộ lọc -->
+    <Button
+        android:id="@+id/btn_toggle_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hiện bộ lọc ngày"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/accent_blue"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Bộ lọc theo ngày -->
+    <LinearLayout
+        android:id="@+id/layout_date_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/search_background"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lọc theo ngày"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Từ ngày:"
+                android:textColor="@color/text_primary"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/edit_start_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="DD/MM/YYYY"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/bg_edittext"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đến ngày:"
+                android:textColor="@color/text_primary"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/edit_end_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="DD/MM/YYYY"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/bg_edittext"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_clear_filter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Xóa bộ lọc"
+                android:backgroundTint="@android:color/darker_gray"
+                android:textColor="@color/white"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btn_apply_filter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Áp dụng"
+                android:backgroundTint="@color/accent_blue"
+                android:textColor="@color/white"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Hiển thị kết quả tìm kiếm -->

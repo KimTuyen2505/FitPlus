@@ -77,7 +77,6 @@ public class MenstrualCycleFragment extends Fragment {
         calendarMenstrualCycle.setOnDateChangeListener((view1, year, month, dayOfMonth) -> {
             Calendar selectedDate = Calendar.getInstance();
             selectedDate.set(year, month, dayOfMonth);
-            // Handle date selection
         });
 
         btnLogPeriod.setOnClickListener(v -> showLogPeriodDialog());

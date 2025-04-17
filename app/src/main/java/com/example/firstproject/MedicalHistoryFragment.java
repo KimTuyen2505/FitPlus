@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,14 @@ public class MedicalHistoryFragment extends Fragment {
     private MedicalRecordDAO medicalRecordDAO;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
+    // Thêm các biến mới để lọc theo ngày
+    private EditText editStartDate, editEndDate;
+    private Button btnFilter, btnClearFilter, btnToggleFilter;
+    private LinearLayout layoutDateFilter;
+    private boolean isFilterExpanded = false;
+    private Date startDate = null;
+    private Date endDate = null;
+
     public interface MedicalHistoryListener {
         void onMedicalRecordAdded();
     }
@@ -61,7 +70,6 @@ public class MedicalHistoryFragment extends Fragment {
         }
         medicalRecordDAO = new MedicalRecordDAO(context);
     }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -86,6 +94,14 @@ public class MedicalHistoryFragment extends Fragment {
         btnClearSearch = view.findViewById(R.id.btn_clear_search);
         textSearchResults = view.findViewById(R.id.text_search_results);
 
+        // Ánh xạ các thành phần lọc theo ngày
+        layoutDateFilter = view.findViewById(R.id.layout_date_filter);
+        editStartDate = view.findViewById(R.id.edit_start_date);
+        editEndDate = view.findViewById(R.id.edit_end_date);
+        btnFilter = view.findViewById(R.id.btn_apply_filter);
+        btnClearFilter = view.findViewById(R.id.btn_clear_filter);
+        btnToggleFilter = view.findViewById(R.id.btn_toggle_filter);
+
         recyclerMedicalHistory.setLayoutManager(new LinearLayoutManager(getContext()));
 
         medicalRecordList = new ArrayList<>();
@@ -95,75 +111,207 @@ public class MedicalHistoryFragment extends Fragment {
 
         btnAddMedicalRecord.setOnClickListener(v -> showAddMedicalRecordDialog());
 
-        // Thiết lập chức năng tìm kiếm
+        // Thiết lập sự kiện cho nút hiển thị/ẩn bộ lọc
+        btnToggleFilter.setOnClickListener(v -> {
+            isFilterExpanded = !isFilterExpanded;
+            layoutDateFilter.setVisibility(isFilterExpanded ? View.VISIBLE : View.GONE);
+            btnToggleFilter.setText(isFilterExpanded ? "Ẩn bộ lọc ngày" : "Hiện bộ lọc ngày");
+        });
+
+        // Thiết lập sự kiện chọn ngày
+        editStartDate.setOnClickListener(v -> showDatePickerDialog(editStartDate, true));
+        editEndDate.setOnClickListener(v -> showDatePickerDialog(editEndDate, false));
+
+        // Thiết lập sự kiện áp dụng bộ lọc
+        btnFilter.setOnClickListener(v -> {
+            String keyword = editSearch.getText().toString().trim().toLowerCase();
+            filterRecords(keyword);
+            Toast.makeText(getContext(), "Đã áp dụng bộ lọc", Toast.LENGTH_SHORT).show();
+        });
+
+        // Thiết lập sự kiện xóa bộ lọc
+        btnClearFilter.setOnClickListener(v -> {
+            editStartDate.setText("");
+            editEndDate.setText("");
+            startDate = null;
+            endDate = null;
+            String keyword = editSearch.getText().toString().trim().toLowerCase();
+            filterRecords(keyword);
+            Toast.makeText(getContext(), "Đã xóa bộ lọc ngày", Toast.LENGTH_SHORT).show();
+        });
+
         setupSearch();
 
         return view;
     }
 
+    // Thêm phương thức hiển thị DatePickerDialog
+    private void showDatePickerDialog(EditText dateField, boolean isStartDate) {
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // Nếu đã có ngày nhập, sử dụng ngày đó làm giá trị khởi tạo
+        String currentDate = dateField.getText().toString();
+        if (!currentDate.isEmpty()) {
+            try {
+                Date date = dateFormat.parse(currentDate);
+                calendar.setTime(date);
+                year = calendar.get(Calendar.YEAR);
+                month = calendar.get(Calendar.MONTH);
+                day = calendar.get(Calendar.DAY_OF_MONTH);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                getContext(),
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    calendar.set(selectedYear, selectedMonth, selectedDay);
+                    dateField.setText(dateFormat.format(calendar.getTime()));
+
+                    // Lưu ngày đã chọn
+                    try {
+                        if (isStartDate) {
+                            startDate = dateFormat.parse(dateField.getText().toString());
+                        } else {
+                            endDate = dateFormat.parse(dateField.getText().toString());
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                },
+                year, month, day
+        );
+        datePickerDialog.show();
+    }
+
+    // Sửa phương thức filterRecords để hỗ trợ lọc theo ngày
+    private void filterRecords(String keyword) {
+        filteredRecordList.clear();
+
+        // Lọc theo từ khóa và ngày
+        for (MedicalRecord record : medicalRecordList) {
+            boolean matchesKeyword = keyword.isEmpty() ||
+                    record.getTitle().toLowerCase().contains(keyword) ||
+                    (record.getDescription() != null && record.getDescription().toLowerCase().contains(keyword)) ||
+                    (record.getDoctor() != null && record.getDoctor().toLowerCase().contains(keyword)) ||
+                    (record.getHospital() != null && record.getHospital().toLowerCase().contains(keyword));
+
+            boolean matchesDateRange = true;
+
+            // Kiểm tra ngày bắt đầu
+            if (startDate != null && record.getDate() != null) {
+                Calendar recordDate = Calendar.getInstance();
+                recordDate.setTime(record.getDate());
+                recordDate.set(Calendar.HOUR_OF_DAY, 0);
+                recordDate.set(Calendar.MINUTE, 0);
+                recordDate.set(Calendar.SECOND, 0);
+                recordDate.set(Calendar.MILLISECOND, 0);
+
+                Calendar startCal = Calendar.getInstance();
+                startCal.setTime(startDate);
+                startCal.set(Calendar.HOUR_OF_DAY, 0);
+                startCal.set(Calendar.MINUTE, 0);
+                startCal.set(Calendar.SECOND, 0);
+                startCal.set(Calendar.MILLISECOND, 0);
+
+                if (recordDate.getTime().before(startCal.getTime())) {
+                    matchesDateRange = false;
+                }
+            }
+
+            // Kiểm tra ngày kết thúc
+            if (endDate != null && record.getDate() != null) {
+                Calendar recordDate = Calendar.getInstance();
+                recordDate.setTime(record.getDate());
+                recordDate.set(Calendar.HOUR_OF_DAY, 23);
+                recordDate.set(Calendar.MINUTE, 59);
+                recordDate.set(Calendar.SECOND, 59);
+
+                Calendar endCal = Calendar.getInstance();
+                endCal.setTime(endDate);
+                endCal.set(Calendar.HOUR_OF_DAY, 23);
+                endCal.set(Calendar.MINUTE, 59);
+                endCal.set(Calendar.SECOND, 59);
+
+                if (recordDate.getTime().after(endCal.getTime())) {
+                    matchesDateRange = false;
+                }
+            }
+
+            if (matchesKeyword && matchesDateRange) {
+                filteredRecordList.add(record);
+            }
+        }
+
+        // Cập nhật thông báo kết quả tìm kiếm
+        updateSearchResultsText(keyword);
+
+        adapter.notifyDataSetChanged();
+    }
+
+    // Thêm phương thức cập nhật thông báo kết quả tìm kiếm
+    private void updateSearchResultsText(String keyword) {
+        if (!keyword.isEmpty() || startDate != null || endDate != null) {
+            StringBuilder filterText = new StringBuilder("Tìm thấy " + filteredRecordList.size() + " kết quả");
+
+            if (!keyword.isEmpty()) {
+                filterText.append(" cho '").append(keyword).append("'");
+            }
+
+            if (startDate != null || endDate != null) {
+                filterText.append(" trong khoảng thời gian");
+                if (startDate != null) {
+                    filterText.append(" từ ").append(dateFormat.format(startDate));
+                }
+                if (endDate != null) {
+                    filterText.append(" đến ").append(dateFormat.format(endDate));
+                }
+            }
+
+            textSearchResults.setText(filterText.toString());
+            textSearchResults.setVisibility(View.VISIBLE);
+        } else {
+            textSearchResults.setVisibility(View.GONE);
+        }
+
+        btnClearSearch.setVisibility(!keyword.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    // Sửa phương thức loadMedicalRecords để giữ nguyên bộ lọc khi tải lại dữ liệu
+    private void loadMedicalRecords() {
+        medicalRecordList.clear();
+        medicalRecordList.addAll(medicalRecordDAO.getAllMedicalRecords());
+
+        String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
+        filterRecords(currentKeyword);
+    }
+
+    // Sửa phương thức setupSearch để cập nhật lọc theo ngày khi tìm kiếm
     private void setupSearch() {
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
-
             @Override
             public void afterTextChanged(Editable s) {
                 String keyword = s.toString().trim().toLowerCase();
                 filterRecords(keyword);
-
-                // Hiển thị hoặc ẩn nút xóa tìm kiếm
-                if (keyword.isEmpty()) {
-                    btnClearSearch.setVisibility(View.GONE);
-                    textSearchResults.setVisibility(View.GONE);
-                } else {
-                    btnClearSearch.setVisibility(View.VISIBLE);
-                    textSearchResults.setVisibility(View.VISIBLE);
-                    textSearchResults.setText("Tìm thấy " + filteredRecordList.size() + " kết quả cho '" + keyword + "'");
-                }
             }
         });
 
         btnClearSearch.setOnClickListener(v -> {
             editSearch.setText("");
             btnClearSearch.setVisibility(View.GONE);
-            textSearchResults.setVisibility(View.GONE);
+            filterRecords("");
         });
     }
-
-    private void filterRecords(String keyword) {
-        filteredRecordList.clear();
-
-        if (keyword.isEmpty()) {
-            filteredRecordList.addAll(medicalRecordList);
-        } else {
-            for (MedicalRecord record : medicalRecordList) {
-                // Tìm kiếm trong tiêu đề, mô tả, bác sĩ và bệnh viện
-                if (record.getTitle().toLowerCase().contains(keyword) ||
-                        (record.getDescription() != null && record.getDescription().toLowerCase().contains(keyword)) ||
-                        (record.getDoctor() != null && record.getDoctor().toLowerCase().contains(keyword)) ||
-                        (record.getHospital() != null && record.getHospital().toLowerCase().contains(keyword))) {
-                    filteredRecordList.add(record);
-                }
-            }
-        }
-
-        adapter.notifyDataSetChanged();
-    }
-
-    private void loadMedicalRecords() {
-        medicalRecordList.clear();
-        medicalRecordList.addAll(medicalRecordDAO.getAllMedicalRecords());
-
-        // Cập nhật danh sách đã lọc
-        String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
-        filterRecords(currentKeyword);
-    }
-
     private void showAddMedicalRecordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_medical_record, null);
@@ -175,8 +323,6 @@ public class MedicalHistoryFragment extends Fragment {
         final EditText editNotes = dialogView.findViewById(R.id.edit_notes);
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
-
-        // Thiết lập DatePicker khi nhấp vào trường ngày
         editDate.setOnClickListener(v -> {
             final Calendar calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
@@ -190,19 +336,14 @@ public class MedicalHistoryFragment extends Fragment {
                     }, year, month, day);
             datePickerDialog.show();
         });
-
-        // Đặt ngày hiện tại làm mặc định
         editDate.setText(dateFormat.format(new Date()));
-
         final AlertDialog dialog = builder.create();
         dialog.show();
-
         btnSave.setOnClickListener(v -> {
             String title = editTitle.getText().toString();
             String dateStr = editDate.getText().toString();
             String doctor = editDoctor.getText().toString();
             String notes = editNotes.getText().toString();
-
             Date date = null;
             try {
                 date = dateFormat.parse(dateStr);
@@ -210,7 +351,6 @@ public class MedicalHistoryFragment extends Fragment {
                 Toast.makeText(getContext(), "Thời gian không hợp lệ. Vui lòng sử dụng định dạng DD/MM/YYYY", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             if (!title.isEmpty() && date != null) {
                 MedicalRecord record = new MedicalRecord(title, notes, date, doctor, "");
                 long id = medicalRecordDAO.insertMedicalRecord(record);
@@ -218,7 +358,6 @@ public class MedicalHistoryFragment extends Fragment {
 
                 medicalRecordList.add(0, record);
 
-                // Cập nhật danh sách đã lọc
                 String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
                 filterRecords(currentKeyword);
 
@@ -227,7 +366,6 @@ public class MedicalHistoryFragment extends Fragment {
                 if (listener != null) {
                     listener.onMedicalRecordAdded();
                 }
-
                 Toast.makeText(getContext(), "Đã thêm hồ sơ y tế", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             } else {
@@ -236,10 +374,8 @@ public class MedicalHistoryFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
             }
         });
-
         btnCancel.setOnClickListener(v -> dialog.dismiss());
     }
-
     @Override
     public void onDetach() {
         super.onDetach();
@@ -261,7 +397,6 @@ public class MedicalHistoryFragment extends Fragment {
                     .inflate(R.layout.item_medical_record, parent, false);
             return new MedicalRecordViewHolder(view);
         }
-
         @Override
         public void onBindViewHolder(@NonNull MedicalRecordViewHolder holder, int position) {
             MedicalRecord record = records.get(position);
@@ -272,7 +407,6 @@ public class MedicalHistoryFragment extends Fragment {
                 return true;
             });
         }
-
         @Override
         public int getItemCount() {
             return records.size();
@@ -289,7 +423,6 @@ public class MedicalHistoryFragment extends Fragment {
                 textDoctor = itemView.findViewById(R.id.text_doctor);
                 textNotes = itemView.findViewById(R.id.text_notes);
             }
-
             public void bind(MedicalRecord record) {
                 textTitle.setText(record.getTitle());
                 textDate.setText(dateFormat.format(record.getDate()));
@@ -307,7 +440,6 @@ public class MedicalHistoryFragment extends Fragment {
                     medicalRecordDAO.deleteMedicalRecord(record.getId());
                     medicalRecordList.remove(record);
 
-                    // Cập nhật danh sách đã lọc
                     String currentKeyword = editSearch.getText().toString().trim().toLowerCase();
                     filterRecords(currentKeyword);
 

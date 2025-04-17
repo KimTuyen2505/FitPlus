@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements
                     selectedFragment = new RemindersFragment();
                     title = "Nhắc nhở";
                 } else if (itemId == R.id.nav_more) {
-                    // Hiển thị menu popup với các tùy chọn khác
                     showMoreOptions();
                     return true;
                 }
