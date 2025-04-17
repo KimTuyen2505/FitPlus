@@ -3,7 +3,30 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+
+    <!-- Biểu tượng giọt máu -->
     <path
-        android:fillColor="#FF000000"
-        android:pathData="M12,2L4.5,20.29l0.71,0.71L12,18l6.79,3 0.71,-0.71z"/>
+        android:fillColor="#E53935"
+        android:pathData="M12,2C12,2 6,8 6,14C6,17.31 8.69,20 12,20C15.31,20 18,17.31 18,14C18,8 12,2 12,2Z"/>
+
+    <!-- Đường kẻ biểu thị đường huyết -->
+    <path
+        android:pathData="M8,12L10,14L16,8"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Biểu tượng đường -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M9,16m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"/>
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,16m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"/>
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,13m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"/>
 </vector>
