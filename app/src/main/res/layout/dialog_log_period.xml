@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#FFF5F7">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ghi nhận ngày bắt đầu chu kỳ"
         android:textSize="20sp"
-        android:textColor="@color/accent_blue"
+        android:textColor="#FF4081"
         android:layout_marginBottom="16dp" />
 
     <CalendarView
         android:id="@+id/calendar_select_date"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:selectedWeekBackgroundColor="#FFCCE5"
+        android:focusedMonthDateColor="#FF4081"
+        android:weekSeparatorLineColor="#FFCCE5" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        app:boxBackgroundColor="#FFFFFF"
+        app:boxStrokeColor="#FF4081"
+        app:hintTextColor="#FF4081">
 
         <EditText
             android:id="@+id/edit_symptoms"
@@ -46,7 +54,9 @@
             android:layout_weight="1"
             android:text="Hủy"
             android:layout_marginEnd="4dp"
-            android:backgroundTint="@android:color/darker_gray" />
+            android:backgroundTint="#BDBDBD"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="20dp" />
 
         <Button
             android:id="@+id/btn_save"
@@ -55,10 +65,10 @@
             android:layout_weight="1"
             android:text="Lưu"
             android:layout_marginStart="4dp"
-            android:backgroundTint="@color/accent_blue"
-            android:textColor="@color/white" />
+            android:backgroundTint="#FF4081"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="20dp" />
 
     </LinearLayout>
 
 </LinearLayout>
-

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "health_management.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // Increased version for new tables
 
     // Bảng User
     public static final String TABLE_USER = "user";
@@ -92,6 +92,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_HEALTH_SUGGESTION_CONTENT = "content";
     public static final String COLUMN_HEALTH_SUGGESTION_SOURCE = "source";
     public static final String COLUMN_HEALTH_SUGGESTION_CATEGORY_FK = "category_id"; // Đổi tên để tránh trùng lặp
+
+    // Bảng PregnancyData (mới)
+    public static final String TABLE_PREGNANCY_DATA = "pregnancy_data";
+    public static final String COLUMN_PREGNANCY_ID = "id";
+    public static final String COLUMN_PREGNANCY_USER_ID = "user_id";
+    public static final String COLUMN_PREGNANCY_START_DATE = "start_date";
+    public static final String COLUMN_PREGNANCY_DUE_DATE = "due_date";
+    public static final String COLUMN_PREGNANCY_BABY_NAME = "baby_name";
+    public static final String COLUMN_PREGNANCY_IS_CONFIRMED = "is_confirmed";
+    public static final String COLUMN_PREGNANCY_LAST_UPDATED = "last_updated";
+
+    // Bảng PregnancyDiary (mới)
+    public static final String TABLE_PREGNANCY_DIARY = "pregnancy_diary";
+    public static final String COLUMN_PREGNANCY_DIARY_ID = "id";
+    public static final String COLUMN_PREGNANCY_DIARY_PREGNANCY_ID = "pregnancy_id";
+    public static final String COLUMN_PREGNANCY_DIARY_TITLE = "title";
+    public static final String COLUMN_PREGNANCY_DIARY_CONTENT = "content";
+    public static final String COLUMN_PREGNANCY_DIARY_ENTRY_DATE = "entry_date";
+    public static final String COLUMN_PREGNANCY_DIARY_WEEK = "pregnancy_week";
+
+    // Bảng UltrasoundImage (mới)
+    public static final String TABLE_ULTRASOUND_IMAGE = "ultrasound_image";
+    public static final String COLUMN_ULTRASOUND_ID = "id";
+    public static final String COLUMN_ULTRASOUND_PREGNANCY_ID = "pregnancy_id";
+    public static final String COLUMN_ULTRASOUND_IMAGE_URI = "image_uri";
+    public static final String COLUMN_ULTRASOUND_DATE = "image_date";
+    public static final String COLUMN_ULTRASOUND_WEEK = "pregnancy_week";
+    public static final String COLUMN_ULTRASOUND_NOTES = "notes";
 
     // Thêm phương thức getInstance để đảm bảo chỉ có một instance của DatabaseHelper
     private static DatabaseHelper instance;
@@ -216,10 +244,88 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TABLE_HEALTH_SUGGESTION_CATEGORY + "(" + COLUMN_HEALTH_SUGGESTION_CATEGORY_ID + ")"
                 + ")";
         db.execSQL(CREATE_HEALTH_SUGGESTION_TABLE);
+
+        // Tạo bảng PregnancyData (mới)
+        String CREATE_PREGNANCY_DATA_TABLE = "CREATE TABLE " + TABLE_PREGNANCY_DATA + "("
+                + COLUMN_PREGNANCY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_PREGNANCY_USER_ID + " INTEGER,"
+                + COLUMN_PREGNANCY_START_DATE + " INTEGER,"
+                + COLUMN_PREGNANCY_DUE_DATE + " INTEGER,"
+                + COLUMN_PREGNANCY_BABY_NAME + " TEXT,"
+                + COLUMN_PREGNANCY_IS_CONFIRMED + " INTEGER DEFAULT 0,"
+                + COLUMN_PREGNANCY_LAST_UPDATED + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_PREGNANCY_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                + ")";
+        db.execSQL(CREATE_PREGNANCY_DATA_TABLE);
+
+        // Tạo bảng PregnancyDiary (mới)
+        String CREATE_PREGNANCY_DIARY_TABLE = "CREATE TABLE " + TABLE_PREGNANCY_DIARY + "("
+                + COLUMN_PREGNANCY_DIARY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_PREGNANCY_DIARY_PREGNANCY_ID + " INTEGER,"
+                + COLUMN_PREGNANCY_DIARY_TITLE + " TEXT,"
+                + COLUMN_PREGNANCY_DIARY_CONTENT + " TEXT,"
+                + COLUMN_PREGNANCY_DIARY_ENTRY_DATE + " INTEGER,"
+                + COLUMN_PREGNANCY_DIARY_WEEK + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_PREGNANCY_DIARY_PREGNANCY_ID + ") REFERENCES "
+                + TABLE_PREGNANCY_DATA + "(" + COLUMN_PREGNANCY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_PREGNANCY_DIARY_TABLE);
+
+        // Tạo bảng UltrasoundImage (mới)
+        String CREATE_ULTRASOUND_IMAGE_TABLE = "CREATE TABLE " + TABLE_ULTRASOUND_IMAGE + "("
+                + COLUMN_ULTRASOUND_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_ULTRASOUND_PREGNANCY_ID + " INTEGER,"
+                + COLUMN_ULTRASOUND_IMAGE_URI + " TEXT,"
+                + COLUMN_ULTRASOUND_DATE + " INTEGER,"
+                + COLUMN_ULTRASOUND_WEEK + " INTEGER,"
+                + COLUMN_ULTRASOUND_NOTES + " TEXT,"
+                + "FOREIGN KEY(" + COLUMN_ULTRASOUND_PREGNANCY_ID + ") REFERENCES "
+                + TABLE_PREGNANCY_DATA + "(" + COLUMN_PREGNANCY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_ULTRASOUND_IMAGE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            // Tạo bảng PregnancyData (mới)
+            String CREATE_PREGNANCY_DATA_TABLE = "CREATE TABLE " + TABLE_PREGNANCY_DATA + "("
+                    + COLUMN_PREGNANCY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_PREGNANCY_USER_ID + " INTEGER,"
+                    + COLUMN_PREGNANCY_START_DATE + " INTEGER,"
+                    + COLUMN_PREGNANCY_DUE_DATE + " INTEGER,"
+                    + COLUMN_PREGNANCY_BABY_NAME + " TEXT,"
+                    + COLUMN_PREGNANCY_IS_CONFIRMED + " INTEGER DEFAULT 0,"
+                    + COLUMN_PREGNANCY_LAST_UPDATED + " INTEGER,"
+                    + "FOREIGN KEY(" + COLUMN_PREGNANCY_USER_ID + ") REFERENCES " + TABLE_USER + "(" + COLUMN_USER_ID + ")"
+                    + ")";
+            db.execSQL(CREATE_PREGNANCY_DATA_TABLE);
 
+            // Tạo bảng PregnancyDiary (mới)
+            String CREATE_PREGNANCY_DIARY_TABLE = "CREATE TABLE " + TABLE_PREGNANCY_DIARY + "("
+                    + COLUMN_PREGNANCY_DIARY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_PREGNANCY_DIARY_PREGNANCY_ID + " INTEGER,"
+                    + COLUMN_PREGNANCY_DIARY_TITLE + " TEXT,"
+                    + COLUMN_PREGNANCY_DIARY_CONTENT + " TEXT,"
+                    + COLUMN_PREGNANCY_DIARY_ENTRY_DATE + " INTEGER,"
+                    + COLUMN_PREGNANCY_DIARY_WEEK + " INTEGER,"
+                    + "FOREIGN KEY(" + COLUMN_PREGNANCY_DIARY_PREGNANCY_ID + ") REFERENCES "
+                    + TABLE_PREGNANCY_DATA + "(" + COLUMN_PREGNANCY_ID + ")"
+                    + ")";
+            db.execSQL(CREATE_PREGNANCY_DIARY_TABLE);
+
+            // Tạo bảng UltrasoundImage (mới)
+            String CREATE_ULTRASOUND_IMAGE_TABLE = "CREATE TABLE " + TABLE_ULTRASOUND_IMAGE + "("
+                    + COLUMN_ULTRASOUND_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_ULTRASOUND_PREGNANCY_ID + " INTEGER,"
+                    + COLUMN_ULTRASOUND_IMAGE_URI + " TEXT,"
+                    + COLUMN_ULTRASOUND_DATE + " INTEGER,"
+                    + COLUMN_ULTRASOUND_WEEK + " INTEGER,"
+                    + COLUMN_ULTRASOUND_NOTES + " TEXT,"
+                    + "FOREIGN KEY(" + COLUMN_ULTRASOUND_PREGNANCY_ID + ") REFERENCES "
+                    + TABLE_PREGNANCY_DATA + "(" + COLUMN_PREGNANCY_ID + ")"
+                    + ")";
+            db.execSQL(CREATE_ULTRASOUND_IMAGE_TABLE);
+        }
     }
 }

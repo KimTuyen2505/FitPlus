@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nhật ký thai kỳ"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#9C27B0"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tiêu đề:"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/edit_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập tiêu đề"
+        android:inputType="text"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nội dung:"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/edit_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập nội dung nhật ký"
+        android:inputType="textMultiLine"
+        android:minLines="5"
+        android:gravity="top|start"
+        android:background="@drawable/bg_edittext"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_close"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Hủy"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#9E9E9E"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Lưu nhật ký"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#9C27B0"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+</LinearLayout>

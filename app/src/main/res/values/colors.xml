@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<!--    <color name="primary_blue">#2196F3</color>-->
-<!--    <color name="primary_green">#4CAF50</color>-->
-<!--    <color name="primary_coral">#FF7043</color>-->
-<!--    <color name="background_gray">#F5F6FA</color>-->
-<!--    <color name="text_primary">#000000</color>-->
-<!--    <color name="text_secondary">#757575</color>-->
-<!--    <color name="black">#FF000000</color>-->
-<!--    <color name="white">#FFFFFFFF</color>-->
     <color name="blue">#2196F3</color>
     <color name="red">#FFFF0000</color>
     <color name="primary_light_blue">#E6F3FF</color>
@@ -17,4 +9,12 @@
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#666666</color>
     <color name="text_tertiary">#999999</color>
+
+    <!-- New colors for menstrual cycle tracking -->
+    <color name="pink_primary">#FF4081</color>
+    <color name="pink_dark">#F50057</color>
+    <color name="pink_light">#FFCCE5</color>
+    <color name="light_gray">#E0E0E0</color>
+    <color name="ovulation_purple">#BA68C8</color>
+    <color name="fertile_green">#8BC34A</color>
 </resources>

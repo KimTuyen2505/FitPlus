@@ -22,4 +22,23 @@
         <item>Mỗi phút</item>
     </string-array>
 
+    <!-- Menstrual Cycle Tips -->
+    <string name="flow_level_light_tip">Lượng kinh nhẹ. Hãy theo dõi nếu chu kỳ của bạn thường xuyên có lượng kinh ít hơn bình thường.</string>
+    <string name="flow_level_normal_tip">Lượng kinh bình thường. Hãy uống nhiều nước và bổ sung sắt để tránh thiếu máu.</string>
+    <string name="flow_level_heavy_tip">Lượng kinh khá nhiều. Nên thay băng vệ sinh thường xuyên và uống nhiều nước.</string>
+    <string name="flow_level_very_heavy_tip">Lượng kinh rất nhiều. Hãy nghỉ ngơi, uống nhiều nước và bổ sung sắt. Nếu tình trạng kéo dài, nên tham khảo ý kiến bác sĩ.</string>
+
+    <string name="pain_level_mild_tip">Đau nhẹ. Bạn có thể dùng túi chườm ấm để giảm đau.</string>
+    <string name="pain_level_moderate_tip">Đau vừa phải. Hãy nghỉ ngơi, uống trà gừng và dùng túi chườm ấm để giảm đau.</string>
+    <string name="pain_level_severe_tip">Đau nhiều. Nên nghỉ ngơi, tránh vận động mạnh, dùng túi chườm ấm và có thể dùng thuốc giảm đau nếu cần.</string>
+    <string name="pain_level_very_severe_tip">Đau dữ dội. Hãy nghỉ ngơi hoàn toàn, dùng túi chườm ấm và thuốc giảm đau. Nếu đau kéo dài hoặc quá dữ dội, nên tham khảo ý kiến bác sĩ.</string>
+
+    <string name="flow_level_tip_title">Lưu ý về lượng kinh</string>
+    <string name="pain_level_tip_title">Lưu ý về đau bụng kinh</string>
+    <string name="tip_understood">Đã hiểu</string>
+
+    <!-- Pregnancy Preparation -->
+    <string name="weekly_tips">Weekly Tips</string>
+    <string name="fertility_tips_title">Lời khuyên khi chuẩn bị mang thai</string>
+    <string name="fertility_tips">• Bổ sung acid folic trước khi mang thai ít nhất 3 tháng\n• Duy trì chế độ ăn uống cân bằng, đầy đủ dinh dưỡng\n• Tránh rượu, thuốc lá và caffeine\n• Duy trì cân nặng hợp lý\n• Theo dõi chu kỳ rụng trứng để tăng khả năng thụ thai</string>
 </resources>

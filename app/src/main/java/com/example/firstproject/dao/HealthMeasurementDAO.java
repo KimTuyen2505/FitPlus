@@ -137,5 +137,3 @@ public class HealthMeasurementDAO {
         return measurement;
     }
 }
-
-

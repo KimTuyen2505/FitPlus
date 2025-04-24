@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#FFF5F7">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,45 +12,868 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quản lý chu kỳ kinh nguyệt"
-            android:textSize="24sp"
-            android:textColor="@color/accent_blue"
-            android:layout_marginBottom="16dp" />
-
-        <CalendarView
-            android:id="@+id/calendar_menstrual_cycle"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/btn_log_period"
+        <!-- Cute header with icon -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ghi nhận chu kỳ"
-            android:backgroundTint="@color/accent_blue"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
 
-        <TextView
-            android:id="@+id/text_cycle_info"
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_period_tracker"
+                android:layout_marginEnd="12dp"
+                app:tint="#FF80AB" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Theo dõi chu kỳ kinh nguyệt"
+                android:textSize="22sp"
+                android:textColor="#FF4081"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <!-- Tab layout for different views -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thông tin chu kỳ của bạn sẽ xuất hiện ở đây."
-            android:textColor="@color/text_secondary"
-            android:layout_marginBottom="16dp" />
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            android:layout_marginBottom="16dp">
 
-        <TextView
-            android:id="@+id/text_cycle_alerts"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="#FFF5F7">
+
+                <TextView
+                    android:id="@+id/tab_cycle_tracking"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Theo dõi kỳ kinh"
+                    android:textColor="#FF4081"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:background="#FFCCE5"/>
+
+                <TextView
+                    android:id="@+id/tab_prediction"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Chuẩn bị mang thai"
+                    android:textColor="#B0BEC5"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:background="#FFFFFF"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Calendar card with cute styling -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/calendar_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bất kỳ cảnh báo hoặc thông báo chu kỳ nào sẽ xuất hiện ở đây."
-            android:textColor="@color/text_secondary" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:background="#FFFFFF">
+
+                <CalendarView
+                    android:id="@+id/calendar_menstrual_cycle"
+                    android:layout_width="match_parent"
+                    android:layout_height="320dp"
+                    android:selectedWeekBackgroundColor="#FFCCE5"
+                    android:focusedMonthDateColor="#FF4081"
+                    android:weekSeparatorLineColor="#FFCCE5"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Legend for calendar colors -->
+        <LinearLayout
+            android:id="@+id/legend_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="●"
+                android:textColor="#FF4081"
+                android:textSize="24sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Kỳ kinh nguyệt"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="●"
+                android:textColor="#8BC34A"
+                android:textSize="24sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Dự đoán kỳ kinh"
+                android:textColor="#757575"
+                android:textSize="12sp"
+                android:layout_marginEnd="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="●"
+                android:textColor="#BA68C8"
+                android:textSize="24sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Giai đoạn rụng trứng"
+                android:textColor="#757575"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <!-- Log period button with cute styling -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/period_logging_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_period_drop"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#FF4081" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đèn đỏ đến rồi"
+                        android:textColor="#424242"
+                        android:textSize="16sp"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"/>
+
+                    <Button
+                        android:id="@+id/btn_log_period"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="Ghi nhận"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#FF4081"
+                        android:paddingHorizontal="16dp"
+                        app:cornerRadius="20dp"/>
+                </LinearLayout>
+
+                <!-- Flow amount tracking -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_period_drop"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#FF4081" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lượng kinh"
+                        android:textColor="#424242"
+                        android:textSize="16sp"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/flow_level_1"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_period_drop"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#FF4081" />
+
+                        <ImageView
+                            android:id="@+id/flow_level_2"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_period_drop"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#FF4081" />
+
+                        <ImageView
+                            android:id="@+id/flow_level_3"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_period_drop"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#FF4081" />
+
+                        <ImageView
+                            android:id="@+id/flow_level_4"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_period_drop"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#E0E0E0" />
+
+                        <ImageView
+                            android:id="@+id/flow_level_5"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_period_drop"
+                            app:tint="#E0E0E0" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Pain level tracking -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_pain"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#FF4081" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đau bụng kinh"
+                        android:textColor="#424242"
+                        android:textSize="16sp"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/pain_level_1"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_pain"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#FF4081" />
+
+                        <ImageView
+                            android:id="@+id/pain_level_2"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_pain"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#FF4081" />
+
+                        <ImageView
+                            android:id="@+id/pain_level_3"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_pain"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#FF4081" />
+
+                        <ImageView
+                            android:id="@+id/pain_level_4"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_pain"
+                            android:layout_marginEnd="4dp"
+                            app:tint="#E0E0E0" />
+
+                        <ImageView
+                            android:id="@+id/pain_level_5"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_pain"
+                            app:tint="#E0E0E0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Cycle info card with cute styling -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cycle_info_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="#FFFFFF">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thông tin chu kỳ"
+                    android:textSize="18sp"
+                    android:textColor="#FF4081"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_cycle_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Thông tin chu kỳ của bạn sẽ xuất hiện ở đây."
+                    android:textColor="#757575"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/text_cycle_alerts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Bất kỳ cảnh báo hoặc thông báo chu kỳ nào sẽ xuất hiện ở đây."
+                    android:textColor="#FF4081"
+                    android:textStyle="italic"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Pregnancy Preparation View -->
+        <LinearLayout
+            android:id="@+id/pregnancy_prep_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Pregnancy Assistant Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:background="#F0F9F0">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trợ Lý Mẹ Bầu"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#4CAF50"/>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_share"
+                    android:layout_marginEnd="8dp"
+                    app:tint="#4CAF50"/>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_favorite"
+                    app:tint="#4CAF50"/>
+            </LinearLayout>
+
+            <!-- Pregnancy Profile Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/pregnancy_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/text_baby_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Ngô Gia Bảo Hân (Bé Yêu)"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#333333"/>
+
+                            <TextView
+                                android:id="@+id/text_due_date"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Dự sinh: 22/5/2020"
+                                android:textSize="14sp"
+                                android:textColor="#666666"
+                                android:layout_marginTop="4dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="8dp">
+
+                                <TextView
+                                    android:id="@+id/text_baby_size"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="14.2 cm"
+                                    android:textSize="14sp"
+                                    android:textColor="#666666"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" | "
+                                    android:textColor="#666666"/>
+
+                                <TextView
+                                    android:id="@+id/text_baby_weight"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="150 g"
+                                    android:textSize="14sp"
+                                    android:textColor="#666666"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="16dp">
+
+                                <TextView
+                                    android:id="@+id/text_pregnancy_days"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="129 Ngày"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#4CAF50"/>
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_arrow_down"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_gravity="center_vertical"
+                                    app:tint="#4CAF50"/>
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/text_pregnancy_weeks"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="19 tuần 1 ngày"
+                                android:textSize="14sp"
+                                android:textColor="#666666"
+                                android:layout_marginTop="4dp"/>
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:background="@drawable/circle_background_green"
+                            android:layout_gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:src="@drawable/ic_period_tracker"
+                                android:layout_gravity="center"
+                                app:tint="#4CAF50"/>
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/btn_confirm_pregnancy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Xác nhận đang mang thai"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#4CAF50"
+                android:padding="16dp"
+                android:layout_margin="16dp"
+                app:cornerRadius="12dp"
+                android:visibility="visible"/>
+
+            <!-- Feature Buttons Grid -->
+            <GridLayout
+                android:id="@+id/pregnancy_features_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="2"
+                android:padding="16dp">
+
+                <!-- Details Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#2196F3">
+
+                    <Button
+                        android:id="@+id/btn_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Chi tiết"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Images Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#4CAF50">
+
+                    <Button
+                        android:id="@+id/btn_images"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Hình ảnh"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Names Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#FF9800">
+
+                    <Button
+                        android:id="@+id/btn_names"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Đặt tên"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Diary Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#9C27B0">
+
+                    <Button
+                        android:id="@+id/btn_diary"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Nhật ký"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+            </GridLayout>
+
+            <!-- Add additional features grid -->
+            <GridLayout
+                android:id="@+id/pregnancy_additional_features"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="2"
+                android:padding="16dp">
+
+                <!-- Meal Plans Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#E91E63">
+
+                    <Button
+                        android:id="@+id/btn_meal_plans"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Thực đơn"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Checkup Schedule Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#3F51B5">
+
+                    <Button
+                        android:id="@+id/btn_checkup_schedule"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Lịch khám"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Preparation List Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#795548">
+
+                    <Button
+                        android:id="@+id/btn_preparation_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Chuẩn bị"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Videos Button -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#FF5722">
+
+                    <Button
+                        android:id="@+id/btn_videos"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Video"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </androidx.cardview.widget.CardView>
+            </GridLayout>
+
+            <!-- Bottom Navigation -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="16dp">
+
+                <!-- Preparation Button -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_nav_prep"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_calendar"
+                        app:fabSize="mini"
+                        app:backgroundTint="#4CAF50"
+                        app:tint="#FFFFFF"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chuẩn bị"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Sounds Button -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_nav_sounds"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_heart"
+                        app:fabSize="mini"
+                        app:backgroundTint="#2196F3"
+                        app:tint="#FFFFFF"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Âm đáng yêu"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Videos Button -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_nav_videos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_camera"
+                        app:fabSize="mini"
+                        app:backgroundTint="#FF9800"
+                        app:tint="#FFFFFF"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Video bé ích"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Settings Button -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_nav_settings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_settings"
+                        app:fabSize="mini"
+                        app:backgroundTint="#9E9E9E"
+                        app:tint="#FFFFFF"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cài đặt"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
-
 </ScrollView>
-
