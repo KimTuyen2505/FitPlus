@@ -13,7 +13,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            // Khởi động lại tất cả các nhắc nhở sau khi thiết bị khởi động
+            // Restart all reminders after device boot
             ReminderDAO reminderDAO = new ReminderDAO(context);
             reminderDAO.open();
 
@@ -28,4 +28,3 @@ public class BootCompletedReceiver extends BroadcastReceiver {
         }
     }
 }
-

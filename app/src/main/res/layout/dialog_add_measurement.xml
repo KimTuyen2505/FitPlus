@@ -6,6 +6,7 @@
     android:padding="16dp">
 
     <TextView
+        android:id="@+id/dialog_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Thêm chỉ số mới"
@@ -40,11 +41,12 @@
             android:text="Nhịp tim" />
     </RadioGroup>
 
+    <!-- Weight Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_weight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="16dp">
 
         <EditText
             android:id="@+id/edit_weight"
@@ -55,6 +57,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Height Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_height"
         android:layout_width="match_parent"
@@ -71,6 +74,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Heart Rate Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_heart_rate"
         android:layout_width="match_parent"
@@ -114,4 +118,3 @@
     </LinearLayout>
 
 </LinearLayout>
-

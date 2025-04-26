@@ -6,39 +6,45 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 
-import com.example.firstproject.R;
-import com.example.firstproject.dao.UserDAO;
 import com.example.firstproject.dao.HealthMeasurementDAO;
-import com.example.firstproject.dao.ReminderDAO;
-import com.example.firstproject.models.User;
+import com.example.firstproject.dao.UserDAO;
 import com.example.firstproject.models.HealthMeasurement;
-import com.example.firstproject.models.Reminder;
+import com.example.firstproject.models.User;
+import com.google.android.material.imageview.ShapeableImageView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class DashboardFragment extends Fragment {
     public interface DashboardListener {
         void onAddMeasurementClicked();
         void onViewRemindersClicked();
+        void onHealthTrackingClicked();
+        void onHealthSuggestionsClicked();
+        // Add new interface methods
+        void onMenstrualCycleClicked();
+        void onConsultDoctorClicked();
+        void onBookAppointmentClicked();
     }
+
     private DashboardListener listener;
-    private TextView textWeight, textHeight, textBMI, textHealthTip;
-    private TextView textLastMeasurement, textNextReminder;
-    private Button btnAddMeasurement, btnViewReminders;
-    private CardView cardHealth, cardReminders, cardTips;
+    private TextView textUserName, textUserStatus;
+    private TextView textWeight, textHeight, textHeartRate, textBMI;
+    private CardView cardWeight, cardHeight, cardHeartRate, cardBMI;
+    private CardView btnMenstrualCycle, btnViewReminders, btnHealthTracking, btnHealthSuggestions;
+    private Button btnConsultDoctor, btnBookAppointment;
+    private ShapeableImageView profileImageSmall;
+    private TextView textHealthTip;
+
     private UserDAO userDAO;
     private HealthMeasurementDAO healthMeasurementDAO;
-    private ReminderDAO reminderDAO;
-    private SimpleDateFormat dateFormat;         // Định dạng ngày giờ
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -50,25 +56,23 @@ public class DashboardFragment extends Fragment {
 
         userDAO = new UserDAO(context);
         healthMeasurementDAO = new HealthMeasurementDAO(context);
-        reminderDAO = new ReminderDAO(context);
-
-        dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
     }
+
     @Override
     public void onResume() {
         super.onResume();
         userDAO.open();
         healthMeasurementDAO.open();
-        reminderDAO.open();
         loadHealthData();
     }
+
     @Override
     public void onPause() {
         super.onPause();
         userDAO.close();
         healthMeasurementDAO.close();
-        reminderDAO.close();
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -76,21 +80,36 @@ public class DashboardFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
+        // Initialize views
+        textUserName = view.findViewById(R.id.text_user_name);
+        textUserStatus = view.findViewById(R.id.text_user_status);
         textWeight = view.findViewById(R.id.text_weight);
         textHeight = view.findViewById(R.id.text_height);
+        textHeartRate = view.findViewById(R.id.text_heart_rate);
         textBMI = view.findViewById(R.id.text_bmi);
-        textHealthTip = view.findViewById(R.id.text_health_tip);
-        textLastMeasurement = view.findViewById(R.id.text_last_measurement);
-        textNextReminder = view.findViewById(R.id.text_next_reminder);
-        btnAddMeasurement = view.findViewById(R.id.btn_add_measurement);
-        btnViewReminders = view.findViewById(R.id.btn_view_reminders);
-        cardHealth = view.findViewById(R.id.card_health);
-        cardReminders = view.findViewById(R.id.card_reminders);
-        cardTips = view.findViewById(R.id.card_tips);
 
-        btnAddMeasurement.setOnClickListener(v -> {
+        cardWeight = view.findViewById(R.id.card_weight);
+        cardHeight = view.findViewById(R.id.card_height);
+        cardHeartRate = view.findViewById(R.id.card_heart_rate);
+        cardBMI = view.findViewById(R.id.card_bmi);
+
+        // Updated button references
+        btnMenstrualCycle = view.findViewById(R.id.btn_menstrual_cycle);
+        btnViewReminders = view.findViewById(R.id.btn_view_reminders);
+        btnHealthTracking = view.findViewById(R.id.btn_health_tracking);
+        btnHealthSuggestions = view.findViewById(R.id.btn_health_suggestions);
+
+        // New doctor consultation buttons
+        btnConsultDoctor = view.findViewById(R.id.btn_consult_doctor);
+        btnBookAppointment = view.findViewById(R.id.btn_book_appointment);
+
+        profileImageSmall = view.findViewById(R.id.profile_image_small);
+        textHealthTip = view.findViewById(R.id.text_health_tip);
+
+        // Set click listeners
+        btnMenstrualCycle.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onAddMeasurementClicked();
+                listener.onMenstrualCycleClicked();
             }
         });
 
@@ -100,62 +119,152 @@ public class DashboardFragment extends Fragment {
             }
         });
 
+        btnHealthTracking.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHealthTrackingClicked();
+            }
+        });
+
+        btnHealthSuggestions.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHealthSuggestionsClicked();
+            }
+        });
+
+        // Set click listeners for new doctor consultation buttons
+        btnConsultDoctor.setOnClickListener(v -> {
+            try {
+                if (listener != null) {
+                    listener.onConsultDoctorClicked();
+                    Toast.makeText(getContext(), "Đang kết nối với bác sĩ...", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("DashboardFragment", "Error starting DoctorConsultationActivity", e);
+                Toast.makeText(getContext(), "Không thể mở trang tư vấn bác sĩ", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnBookAppointment.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onBookAppointmentClicked();
+                Toast.makeText(getContext(), "Đang mở trang đặt lịch khám...", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Set click listeners for new doctor consultation buttons
+        btnBookAppointment.setOnClickListener(v -> {
+            try {
+                if (listener != null) {
+                    listener.onBookAppointmentClicked();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("DashboardFragment", "Error starting AppointmentBookingActivity", e);
+                Toast.makeText(getContext(), "Không thể mở trang đặt lịch khám", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Set click listeners for health metric cards
+        cardWeight.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHealthTrackingClicked();
+                Toast.makeText(getContext(), "Đang chuyển đến biểu đồ cân nặng", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cardHeight.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHealthTrackingClicked();
+                Toast.makeText(getContext(), "Đang chuyển đến biểu đồ chiều cao", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cardHeartRate.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHealthTrackingClicked();
+                Toast.makeText(getContext(), "Đang chuyển đến biểu đồ nhịp tim", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cardBMI.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHealthTrackingClicked();
+                Toast.makeText(getContext(), "Đang chuyển đến thông tin BMI", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return view;
     }
+
     private void loadHealthData() {
+        // Load user data
         User user = userDAO.getCurrentUser();
         if (user != null) {
-            textWeight.setText(String.format(Locale.getDefault(),
-                    "Cân nặng: %.1f kg", user.getWeight()));
-            textHeight.setText(String.format(Locale.getDefault(),
-                    "Chiều cao: %.1f cm", user.getHeight()));
+            // Set user name
+            String userName = user.getName();
+            if (userName != null && !userName.isEmpty()) {
+                textUserName.setText("Xin chào, " + userName + "!");
+            } else {
+                textUserName.setText("Xin chào!");
+            }
 
+            // Set weight, height, and BMI from user data
+            if (user.getWeight() > 0) {
+                textWeight.setText(String.format(Locale.getDefault(), "%.1f kg", user.getWeight()));
+            } else {
+                textWeight.setText("-- kg");
+            }
+
+            if (user.getHeight() > 0) {
+                textHeight.setText(String.format(Locale.getDefault(), "%.1f cm", user.getHeight()));
+            } else {
+                textHeight.setText("-- cm");
+            }
+
+            if (user.getHeartRate() > 0) {
+                textHeartRate.setText(String.format(Locale.getDefault(), "%d bpm", user.getHeartRate()));
+            } else {
+                textHeartRate.setText("-- bpm");
+            }
+
+            // Calculate and display BMI
             float bmi = user.calculateBMI();
-            String bmiStatus = user.getBMICategory();
-            textBMI.setText(String.format(Locale.getDefault(),
-                    "BMI: %.1f (%s)", bmi, bmiStatus));
-        }
-        HealthMeasurement latestWeight =
-                healthMeasurementDAO.getLatestMeasurementByType("weight");
-        HealthMeasurement latestHeight =
-                healthMeasurementDAO.getLatestMeasurementByType("height");
+            if (bmi > 0) {
+                String bmiCategory = user.getBMICategory();
+                textBMI.setText(String.format(Locale.getDefault(), "%.1f (%s)", bmi, bmiCategory));
+            } else {
+                textBMI.setText("-- (--)");
+            }
 
-        if (latestWeight != null || latestHeight != null) {
-            StringBuilder measurementText = new StringBuilder("Lần đo gần nhất:\n");
-            if (latestWeight != null) {
-                String dateStr = dateFormat.format(latestWeight.getDate());
-                measurementText.append(String.format(Locale.getDefault(),
-                        "Cân nặng: %.1f kg (%s)\n",
-                        latestWeight.getValue(), dateStr));
-            }
-            if (latestHeight != null) {
-                String dateStr = dateFormat.format(latestHeight.getDate());
-                measurementText.append(String.format(Locale.getDefault(),
-                        "Chiều cao: %.1f cm (%s)",
-                        latestHeight.getValue(), dateStr));
-            }
-            textLastMeasurement.setText(measurementText.toString());
-        } else {
-            textLastMeasurement.setText("Chưa có dữ liệu đo lường");
-        }
-        List<Reminder> reminders = reminderDAO.getAllReminders();
-        if (!reminders.isEmpty()) {
-            StringBuilder reminderText = new StringBuilder("Nhắc nhở sắp tới:\n");
-            int count = 0;
-            for (Reminder reminder : reminders) {
-                if (count < 3) {
-                    reminderText.append(String.format("• %s (%s)\n",
-                            reminder.getTitle(),
-                            reminder.getTime()));
-                    count++;
+            // Set profile image if available
+            if (user.getProfileImageUri() != null && !user.getProfileImageUri().isEmpty()) {
+                try {
+                    profileImageSmall.setImageURI(android.net.Uri.parse(user.getProfileImageUri()));
+                } catch (Exception e) {
+                    profileImageSmall.setImageResource(R.drawable.default_avatar);
                 }
             }
-            textNextReminder.setText(reminderText.toString());
-        } else {
-            textNextReminder.setText("Không có nhắc nhở nào");
         }
+
+        // Try to get latest measurements from database
+        HealthMeasurement latestWeight = healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_WEIGHT);
+        if (latestWeight != null) {
+            textWeight.setText(String.format(Locale.getDefault(), "%.1f kg", latestWeight.getValue()));
+        }
+
+        HealthMeasurement latestHeight = healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_HEIGHT);
+        if (latestHeight != null) {
+            textHeight.setText(String.format(Locale.getDefault(), "%.1f cm", latestHeight.getValue()));
+        }
+
+        HealthMeasurement latestHeartRate = healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_HEART_RATE);
+        if (latestHeartRate != null) {
+            textHeartRate.setText(String.format(Locale.getDefault(), "%.0f bpm", latestHeartRate.getValue()));
+        }
+
+        // Update health tips based on user data
         updateHealthTips(user);
     }
+
     private void updateHealthTips(User user) {
         StringBuilder tips = new StringBuilder();
         if (user != null) {
@@ -174,6 +283,7 @@ public class DashboardFragment extends Fragment {
         }
         textHealthTip.setText(tips.toString());
     }
+
     @Override
     public void onDetach() {
         super.onDetach();

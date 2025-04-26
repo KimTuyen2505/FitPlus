@@ -29,10 +29,10 @@ public class ReminderNotificationReceiver extends BroadcastReceiver {
             return;
         }
 
-        // Tạo thông báo
+        // Create notification
         createNotification(context, reminderId, title);
 
-        // Lên lịch lại thông báo tiếp theo nếu cần
+        // Reschedule next notification if needed
         rescheduleNotification(context, reminderId);
     }
 
@@ -40,7 +40,7 @@ public class ReminderNotificationReceiver extends BroadcastReceiver {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Tạo channel cho Android 8.0+
+        // Create channel for Android 8.0+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
@@ -51,7 +51,7 @@ public class ReminderNotificationReceiver extends BroadcastReceiver {
             notificationManager.createNotificationChannel(channel);
         }
 
-        // Intent khi nhấn vào thông báo
+        // Intent when notification is clicked
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra("open_reminders", true);
         intent.putExtra("reminder_id", reminderId);
@@ -64,7 +64,7 @@ public class ReminderNotificationReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        // Xây dựng thông báo
+        // Build notification
         String content = "Đã đến giờ";
         int icon = R.drawable.ic_reminders;
 
@@ -76,7 +76,7 @@ public class ReminderNotificationReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        // Hiển thị thông báo
+        // Show notification
         notificationManager.notify((int) reminderId, builder.build());
     }
 
@@ -92,4 +92,3 @@ public class ReminderNotificationReceiver extends BroadcastReceiver {
         reminderDAO.close();
     }
 }
-

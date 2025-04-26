@@ -20,6 +20,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.firstproject.appointment.AppointmentBookingActivity;
+import com.example.firstproject.doctor.DoctorConsultationActivity;
 import com.example.firstproject.services.NotificationHelper;
 import com.example.firstproject.services.NotificationReceiver;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -44,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize notification channel for Android 8.0+
+        NotificationHelper.createNotificationChannel(this);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -146,6 +151,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onHealthTrackingClicked() {
+        bottomNavigationView.setSelectedItemId(R.id.nav_health);
+        Toast.makeText(this, "Đang chuyển đến Theo dõi sức khỏe", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onHealthSuggestionsClicked() {
+        // Load the HealthSuggestionsFragment
+        Fragment fragment = new HealthSuggestionsFragment();
+        getSupportActionBar().setTitle("Lời khuyên sức khỏe");
+        loadFragment(fragment);
+    }
+
+    @Override
     public void onPersonalInfoSaved() {
         Toast.makeText(this, "Thông tin cá nhân đã được lưu thành công", Toast.LENGTH_SHORT).show();
     }
@@ -174,5 +193,33 @@ public class MainActivity extends AppCompatActivity implements
     public void onPeriodLogged(Date date) {
         Toast.makeText(this, "Đã ghi nhận chu kỳ thành công", Toast.LENGTH_SHORT).show();
     }
-}
 
+    // New methods for menstrual cycle and doctor consultation
+    public void onMenstrualCycleClicked() {
+        Fragment fragment = new MenstrualCycleFragment();
+        getSupportActionBar().setTitle("Chu kỳ kinh nguyệt");
+        loadFragment(fragment);
+    }
+
+    public void onConsultDoctorClicked() {
+        try {
+            // Launch the doctor consultation activity
+            Intent intent = new Intent(this, DoctorConsultationActivity.class);
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Không thể mở trang tư vấn bác sĩ: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void onBookAppointmentClicked() {
+        try {
+            // Launch the appointment booking activity
+            Intent intent = new Intent(this, AppointmentBookingActivity.class);
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Không thể mở trang đặt lịch khám: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+}

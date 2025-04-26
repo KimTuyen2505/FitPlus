@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +29,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
@@ -40,9 +43,15 @@ public class HealthTrackingFragment extends Fragment {
 
     private HealthTrackingListener listener;
     private LineChart chartWeight, chartHeight, chartHeartRate;
-    private TextView textHeartRateStatus;
-    private Button btnAddMeasurement;
+    private TextView textChartTitle, textChartStatus;
+    private TextView textLatestWeight, textLatestHeight, textLatestHeartRate;
+    private RadioGroup radioChartType;
+    private RadioButton radioWeight, radioHeight, radioHeartRate;
+    private FloatingActionButton fabAddMeasurement;
     private HealthMeasurementDAO healthMeasurementDAO;
+
+    // Current selected chart type
+    private String currentChartType = HealthMeasurement.TYPE_WEIGHT;
 
     public interface HealthTrackingListener {
         void onMeasurementAdded();
@@ -57,7 +66,7 @@ public class HealthTrackingFragment extends Fragment {
             throw new RuntimeException(context.toString() + " must implement HealthTrackingListener");
         }
 
-        // Khởi tạo DAO
+        // Initialize DAO
         healthMeasurementDAO = new HealthMeasurementDAO(context);
     }
 
@@ -66,6 +75,7 @@ public class HealthTrackingFragment extends Fragment {
         super.onResume();
         healthMeasurementDAO.open();
         loadChartData();
+        updateLatestMeasurements();
     }
 
     @Override
@@ -83,21 +93,35 @@ public class HealthTrackingFragment extends Fragment {
         chartWeight = view.findViewById(R.id.chart_weight);
         chartHeight = view.findViewById(R.id.chart_height);
         chartHeartRate = view.findViewById(R.id.chart_heart_rate);
-        textHeartRateStatus = view.findViewById(R.id.text_heart_rate_status);
-        btnAddMeasurement = view.findViewById(R.id.btn_add_measurement);
+        textChartTitle = view.findViewById(R.id.text_chart_title);
+        textChartStatus = view.findViewById(R.id.text_chart_status);
+        textLatestWeight = view.findViewById(R.id.text_latest_weight);
+        textLatestHeight = view.findViewById(R.id.text_latest_height);
+        textLatestHeartRate = view.findViewById(R.id.text_latest_heart_rate);
+        radioChartType = view.findViewById(R.id.radio_chart_type);
+        radioWeight = view.findViewById(R.id.radio_weight);
+        radioHeight = view.findViewById(R.id.radio_height);
+        radioHeartRate = view.findViewById(R.id.radio_heart_rate);
+        fabAddMeasurement = view.findViewById(R.id.fab_add_measurement);
 
-        // Cấu hình biểu đồ
+        // Configure charts
         setupChart(chartWeight, "Cân nặng (kg)");
         setupChart(chartHeight, "Chiều cao (cm)");
         setupChart(chartHeartRate, "Nhịp tim (nhịp/phút)");
 
-        // Set click listener for add measurement button
-        btnAddMeasurement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddMeasurementDialog();
+        // Set up radio group listener
+        radioChartType.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radio_weight) {
+                showChart(HealthMeasurement.TYPE_WEIGHT);
+            } else if (checkedId == R.id.radio_height) {
+                showChart(HealthMeasurement.TYPE_HEIGHT);
+            } else if (checkedId == R.id.radio_heart_rate) {
+                showChart(HealthMeasurement.TYPE_HEART_RATE);
             }
         });
+
+        // Set click listener for add measurement button
+        fabAddMeasurement.setOnClickListener(v -> showAddMeasurementDialog());
 
         return view;
     }
@@ -113,7 +137,7 @@ public class HealthTrackingFragment extends Fragment {
         chart.setBackgroundColor(Color.WHITE);
         chart.setViewPortOffsets(0f, 0f, 0f, 0f);
 
-        // Cấu hình trục X
+        // Configure X axis
         XAxis xAxis = chart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
@@ -121,59 +145,125 @@ public class HealthTrackingFragment extends Fragment {
         xAxis.setLabelCount(7);
         xAxis.setValueFormatter(new DateAxisValueFormatter());
 
-        // Cấu hình trục Y bên trái
+        // Configure left Y axis
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setDrawGridLines(true);
         leftAxis.setAxisMinimum(0f);
 
-        // Cấu hình trục Y bên phải
+        // Configure right Y axis
         YAxis rightAxis = chart.getAxisRight();
         rightAxis.setEnabled(false);
 
-        // Cấu hình legend
+        // Configure legend
         chart.getLegend().setEnabled(true);
         chart.getLegend().setTextColor(Color.BLACK);
 
-        // Hiển thị "Không có dữ liệu" khi không có dữ liệu
+        // Display "No data" when there's no data
         chart.setNoDataText("Không có dữ liệu");
         chart.setNoDataTextColor(Color.BLACK);
     }
 
-    private void loadChartData() {
-        List<HealthMeasurement> weightMeasurements =
-                healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_WEIGHT);
-        updateWeightChart(weightMeasurements);
+    private void showChart(String chartType) {
+        currentChartType = chartType;
 
-        List<HealthMeasurement> heightMeasurements =
-                healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_HEIGHT);
-        updateHeightChart(heightMeasurements);
+        // Update chart title
+        if (chartType.equals(HealthMeasurement.TYPE_WEIGHT)) {
+            textChartTitle.setText("Biểu đồ cân nặng");
+            chartWeight.setVisibility(View.VISIBLE);
+            chartHeight.setVisibility(View.GONE);
+            chartHeartRate.setVisibility(View.GONE);
+        } else if (chartType.equals(HealthMeasurement.TYPE_HEIGHT)) {
+            textChartTitle.setText("Biểu đồ chiều cao");
+            chartWeight.setVisibility(View.GONE);
+            chartHeight.setVisibility(View.VISIBLE);
+            chartHeartRate.setVisibility(View.GONE);
+        } else if (chartType.equals(HealthMeasurement.TYPE_HEART_RATE)) {
+            textChartTitle.setText("Biểu đồ nhịp tim");
+            chartWeight.setVisibility(View.GONE);
+            chartHeight.setVisibility(View.GONE);
+            chartHeartRate.setVisibility(View.VISIBLE);
+        }
 
-        List<HealthMeasurement> heartRateMeasurements =
-                healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_HEART_RATE);
-        updateHeartRateChart(heartRateMeasurements);
+        // Update chart status
+        updateChartStatus(chartType);
 
-        HealthMeasurement latestHeartRate =
-                healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_HEART_RATE);
+        // Load chart data
+        loadChartData();
+    }
 
-        if (latestHeartRate != null) {
+    private void updateChartStatus(String chartType) {
+        HealthMeasurement latestMeasurement = healthMeasurementDAO.getLatestMeasurementByType(chartType);
+
+        if (latestMeasurement != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-            String dateStr = dateFormat.format(latestHeartRate.getDate());
+            String dateStr = dateFormat.format(latestMeasurement.getDate());
 
-            textHeartRateStatus.setText(String.format(
-                    "Nhịp tim gần nhất: %.0f nhịp/phút (%s)\n%s",
-                    latestHeartRate.getValue(),
-                    dateStr,
-                    latestHeartRate.getHeartRateStatus()
-            ));
+            if (chartType.equals(HealthMeasurement.TYPE_WEIGHT)) {
+                textChartStatus.setText(String.format(
+                        "Cân nặng gần nhất: %.1f kg (%s)",
+                        latestMeasurement.getValue(),
+                        dateStr
+                ));
+            } else if (chartType.equals(HealthMeasurement.TYPE_HEIGHT)) {
+                textChartStatus.setText(String.format(
+                        "Chiều cao gần nhất: %.1f cm (%s)",
+                        latestMeasurement.getValue(),
+                        dateStr
+                ));
+            } else if (chartType.equals(HealthMeasurement.TYPE_HEART_RATE)) {
+                textChartStatus.setText(String.format(
+                        "Nhịp tim gần nhất: %.0f nhịp/phút (%s)\n%s",
+                        latestMeasurement.getValue(),
+                        dateStr,
+                        latestMeasurement.getHeartRateStatus()
+                ));
 
-            if (latestHeartRate.isHeartRateNormal()) {
-                textHeartRateStatus.setTextColor(getResources().getColor(R.color.accent_blue));
-            } else {
-                textHeartRateStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                if (latestMeasurement.isHeartRateNormal()) {
+                    textChartStatus.setTextColor(getResources().getColor(R.color.accent_blue));
+                } else {
+                    textChartStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                }
             }
         } else {
-            textHeartRateStatus.setText("Trạng thái nhịp tim: Chưa có dữ liệu");
-            textHeartRateStatus.setTextColor(getResources().getColor(R.color.text_secondary));
+            textChartStatus.setText("Trạng thái: Chưa có dữ liệu");
+            textChartStatus.setTextColor(getResources().getColor(R.color.text_secondary));
+        }
+    }
+
+    private void loadChartData() {
+        List<HealthMeasurement> weightMeasurements = healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_WEIGHT);
+        updateWeightChart(weightMeasurements);
+
+        List<HealthMeasurement> heightMeasurements = healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_HEIGHT);
+        updateHeightChart(heightMeasurements);
+
+        List<HealthMeasurement> heartRateMeasurements = healthMeasurementDAO.getMeasurementsByType(HealthMeasurement.TYPE_HEART_RATE);
+        updateHeartRateChart(heartRateMeasurements);
+    }
+
+    private void updateLatestMeasurements() {
+        // Update latest weight
+        HealthMeasurement latestWeight = healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_WEIGHT);
+        if (latestWeight != null) {
+            textLatestWeight.setText(String.format(Locale.getDefault(), "%.1f kg", latestWeight.getValue()));
+        } else {
+            textLatestWeight.setText("-- kg");
+        }
+
+        // Update latest height
+        HealthMeasurement latestHeight = healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_HEIGHT);
+        if (latestHeight != null) {
+            textLatestHeight.setText(String.format(Locale.getDefault(), "%.1f cm", latestHeight.getValue()));
+        } else {
+            textLatestHeight.setText("-- cm");
+        }
+
+        // Update latest heart rate
+        HealthMeasurement latestHeartRate = healthMeasurementDAO.getLatestMeasurementByType(HealthMeasurement.TYPE_HEART_RATE);
+        if (latestHeartRate != null) {
+            textLatestHeartRate.setText(String.format(Locale.getDefault(), "%.0f bpm", latestHeartRate.getValue()));
+        } else {
+            textLatestHeartRate.setText("-- bpm");
         }
     }
 
@@ -290,6 +380,7 @@ public class HealthTrackingFragment extends Fragment {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_measurement, null);
         builder.setView(dialogView);
 
+        final TextView dialogTitle = dialogView.findViewById(R.id.dialog_title);
         final RadioGroup radioGroup = dialogView.findViewById(R.id.radio_measurement_type);
         final TextInputLayout layoutWeight = dialogView.findViewById(R.id.layout_weight);
         final TextInputLayout layoutHeight = dialogView.findViewById(R.id.layout_height);
@@ -302,6 +393,27 @@ public class HealthTrackingFragment extends Fragment {
         Button btnSave = dialogView.findViewById(R.id.btn_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
 
+        // Set initial selection based on current chart type
+        if (currentChartType.equals(HealthMeasurement.TYPE_WEIGHT)) {
+            radioGroup.check(R.id.radio_weight);
+            layoutWeight.setVisibility(View.VISIBLE);
+            layoutHeight.setVisibility(View.GONE);
+            layoutHeartRate.setVisibility(View.GONE);
+            dialogTitle.setText("Thêm chỉ số cân nặng");
+        } else if (currentChartType.equals(HealthMeasurement.TYPE_HEIGHT)) {
+            radioGroup.check(R.id.radio_height);
+            layoutWeight.setVisibility(View.GONE);
+            layoutHeight.setVisibility(View.VISIBLE);
+            layoutHeartRate.setVisibility(View.GONE);
+            dialogTitle.setText("Thêm chỉ số chiều cao");
+        } else if (currentChartType.equals(HealthMeasurement.TYPE_HEART_RATE)) {
+            radioGroup.check(R.id.radio_heart_rate);
+            layoutWeight.setVisibility(View.GONE);
+            layoutHeight.setVisibility(View.GONE);
+            layoutHeartRate.setVisibility(View.VISIBLE);
+            dialogTitle.setText("Thêm chỉ số nhịp tim");
+        }
+
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -311,15 +423,16 @@ public class HealthTrackingFragment extends Fragment {
 
                 if (checkedId == R.id.radio_weight) {
                     layoutWeight.setVisibility(View.VISIBLE);
+                    dialogTitle.setText("Thêm chỉ số cân nặng");
                 } else if (checkedId == R.id.radio_height) {
                     layoutHeight.setVisibility(View.VISIBLE);
+                    dialogTitle.setText("Thêm chỉ số chiều cao");
                 } else if (checkedId == R.id.radio_heart_rate) {
                     layoutHeartRate.setVisibility(View.VISIBLE);
+                    dialogTitle.setText("Thêm chỉ số nhịp tim");
                 }
             }
         });
-
-        radioGroup.check(R.id.radio_weight);
 
         final AlertDialog dialog = builder.create();
         dialog.show();
@@ -327,7 +440,7 @@ public class HealthTrackingFragment extends Fragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Lưu dữ liệu dựa trên loại đo lường được chọn
+                // Save data based on selected measurement type
                 int selectedId = radioGroup.getCheckedRadioButtonId();
 
                 if (selectedId == R.id.radio_weight) {
@@ -360,6 +473,8 @@ public class HealthTrackingFragment extends Fragment {
                 }
 
                 loadChartData();
+                updateLatestMeasurements();
+                updateChartStatus(currentChartType);
 
                 if (listener != null) {
                     listener.onMeasurementAdded();
@@ -382,7 +497,6 @@ public class HealthTrackingFragment extends Fragment {
 
         @Override
         public String getFormattedValue(float value) {
-
             return "";
         }
     }
@@ -393,6 +507,3 @@ public class HealthTrackingFragment extends Fragment {
         listener = null;
     }
 }
-
-
-
